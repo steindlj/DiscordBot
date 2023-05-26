@@ -1,0 +1,3 @@
+[submodule "BacoTell"]
+	path = BacoTell
+	url = https://github.com/EliasStar/BacoTell.git
