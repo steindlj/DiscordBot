@@ -56,7 +56,7 @@ func (TestCommand) CommandData() (discordgo.ApplicationCommand, error) {
 					},
 					{
 						Name:  "African",
-						Value: voices.German,
+						Value: voices.Afrikaans,
 					},
 				},
 			},

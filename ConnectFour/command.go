@@ -13,8 +13,18 @@ import (
 type TestCommand struct{}
 
 var _ provider.Command = TestCommand{}
-var permission int64 = discordgo.PermissionSendMessages
-var grid [6][7]int 
+var (
+	permission int64 = discordgo.PermissionSendMessages
+	grid [6][7]int
+	space = 12
+	width = 48
+	background color.RGBA
+	colorP1 color.RGBA
+	colorP2 color.RGBA
+	min = 0.0
+) 
+
+
 
 func (TestCommand) CommandData() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
@@ -29,45 +39,118 @@ func (TestCommand) CommandData() (discordgo.ApplicationCommand, error) {
 				Description: "Oponent",
 				Required: true,
 			}, 
-			/* {
-				Type: ?,
-				Name: "chip color",
-				Description "Yellow or Red"
+			{
+				Type: discordgo.ApplicationCommandOptionInteger,
+				Name: "chip_color",
+				Description: "Yellow or Red",
+				Required: true,
 				Choices: []*discordgo.ApplicationCommandOptionChoice{
 					{
-						Name: "Red",
-						Value: ?,
+						Name: "redchip",
+						Value: 0,
 					},
 					{
-						Name: "Yellow",
-						Value: ?,
-					}
-				}
+						Name: "yellowchip",
+						Value: 1,
+					},
+				},
 			},
 			{
-				Type: ?,
-				Name: "background"
-				Description: "Background color"
-				Choices: []*discordgo.ApplicationCommandOptionChoice{
-
-				}
-			}, */
+				Type: discordgo.ApplicationCommandOptionInteger,
+				Name: "red",
+				Description: "Red value",
+				Required: true,
+				MinValue: &min,
+				MaxValue: 255,
+			},
+			{
+				Type: discordgo.ApplicationCommandOptionInteger,
+				Name: "green",
+				Description: "Green value",
+				Required: true,
+				MinValue: &min,
+				MaxValue: 255,
+			},
+			{
+				Type: discordgo.ApplicationCommandOptionInteger,
+				Name: "blue",
+				Description: "Blue value",
+				Required: true,
+				MinValue: &min,
+				MaxValue: 255,
+			},
+			{
+				Type: discordgo.ApplicationCommandOptionInteger,
+				Name: "alpha",
+				Description: "Alpha value",
+				Required: true,
+				MinValue: &min,
+				MaxValue: 255,
+			},
 		},
 	}, nil
 }
 
 func (TestCommand) Execute(proxy provider.ExecuteProxy) error {
 	file, _ := os.CreateTemp(os.TempDir(), "*.png")
-	logger.Info(file.Name())
+	chipColor, _ := proxy.IntegerOption("chip_color")
+	red, _ := proxy.IntegerOption("red")
+	green, _ := proxy.IntegerOption("green")
+	blue, _ := proxy.IntegerOption("blue")
+	alpha, _ := proxy.IntegerOption("alpha")
+	background = color.RGBA{uint8(red), uint8(green), uint8(blue), uint8(alpha)}
+	if chipColor == 0 {
+		colorP1 = color.RGBA{255, 0, 0, 255}
+		colorP2 = color.RGBA{255, 255, 0, 255}
+	} else {
+		colorP1 = color.RGBA{255, 255, 0, 255}
+		colorP2 = color.RGBA{255, 0, 0, 255}
+	}
 	checkWin()
-	proxy.Respond(provider.Response{ Content: "test"}, false, false, false)
+	generateImg(background, file)
+	sendFile, _ := os.Open(file.Name())
+	proxy.Respond(provider.Response{
+		Files: []*discordgo.File{
+			{
+			Name: "image.png",
+			Reader: sendFile,
+			},
+		},
+	}, true, false, false)
 	return nil
 }
 
-func generateImg(color color.RGBA, file *os.File) {
-	img := image.NewRGBA(image.Rect(0, 0, 0, 0))
-	
+func generateImg(c color.RGBA, file *os.File) {
+	img := image.NewRGBA(image.Rect(0, 0, 7*width+8*space, 6*width+7*space))
+	for i := 0; i < 7*width+8*space; i++ {
+		for j := 0; j < 6*width+7*space; j++ {
+			img.Set(i,j,c)
+		}
+	}
+	for i := 0; i < 6; i++ {
+		for j := 0; j < 7; j++ {
+			colorField(img, i, j)
+		}
+	} 
 	png.Encode(file, img)
+}
+
+func colorField(img *image.RGBA, i, j int) {
+	x := (j+1)*space + j*width
+	y := (i+1)*space + i*width
+	color := color.RGBA{background.R, background.G, background.B, 230}
+	if grid[i][j] != 0 {
+		if grid[i][j] == 1 {
+			color = colorP1
+		} else {
+			color = colorP2
+		}
+	}
+	for i = 0; i < width; i++ {
+		for j = 0; j < width; j++ {
+			img.SetRGBA(x+i, y+j, color)
+		}
+	}
 }
 
 func checkWin() bool {
@@ -93,28 +176,34 @@ func checkCols() bool {
 }
 
 func checkDiagonalsLeft() bool {
-	for i := 3; i > 0; i-- {
-		if fromUpperLeft(0, i) {
-			return true
-		}
-	} 
-	for i := 0; i < 3; i++ {
-		if fromUpperLeft(i, 0) {
-			return true
+	for i := 0; i <= 3; i++ {
+		if i == 0 {
+			if fromUpperLeft(i, 0) {
+				return true
+			}
+		} else if i == 3 {
+			if fromUpperLeft(0, i) {
+				return true
+			}
+		} else {
+			if fromUpperLeft(i, 0) || fromUpperLeft(0, i) {
+				return true
+			}
 		}
 	}
 	return false
 }
 
 func checkDiagonalsRight() bool {
-	for i := 3; i < 6; i++ {
-		if fromUpperRight(0, i) {
-			return true
-		}
-	} 
-	for i := 0; i < 3; i++ {
-		if fromUpperRight(i, 6) {
-			return true
+	for i := 0; i < 6; i++ {
+		if i < 3 {
+			if fromUpperRight(i, 6) {
+				return true
+			}
+		} else {
+			if fromUpperRight(0, i) {
+				return true
+			}
 		}
 	}
 	return false
@@ -125,8 +214,8 @@ func fromUpperLeft(i,j int) bool {
 		if grid[i][j] == grid[i+1][j+1] && grid[i+1][j+1] == grid[i+2][j+2] && grid[i+2][j+2] == grid[i+3][j+3] && grid[i+3][j+3] != 0 {
 			return true
 		}
-		j++
 		i++
+		j++
 	}
 	return false
 }
@@ -136,8 +225,8 @@ func fromUpperRight(i,j int) bool {
 		if grid[i][j] == grid[i+1][j-1] && grid[i+1][j-1] == grid[i+2][j-2] && grid[i+2][j-2] == grid[i+3][j-3] && grid[i+3][j-3] != 0 {
 			return true
 		}
-		j--
 		i++
+		j--
 	}
 	return false
 }
