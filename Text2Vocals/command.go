@@ -74,6 +74,10 @@ func (TestCommand) CommandData() (discordgo.ApplicationCommand, error) {
 						Name: "sped up",
 						Value: 1,
 					},
+					{
+						Name: "slowed",
+						Value: 2,
+					},
 				},
 			},
 		},
@@ -113,8 +117,11 @@ func Mix(filename string, style int64) string {
 	case 0:
 		wav.Encode(wavFile, streamer, format)
 	case 1:
-		speed := beep.Resample(4, format.SampleRate, format.SampleRate/2, streamer)
+		speed := beep.Resample(4, format.SampleRate, format.SampleRate*3/4, streamer)
 		wav.Encode(wavFile, speed, format)
+	case 2:
+		slowed := beep.Resample(4, format.SampleRate, format.SampleRate*3/2, streamer)
+		wav.Encode(wavFile, slowed, format)
 	}
 	wavFile.Close()
 	return wavFile.Name()
