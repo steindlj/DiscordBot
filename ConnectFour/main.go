@@ -14,11 +14,15 @@ var logger = hclog.New(&hclog.LoggerOptions{
 	Level:  hclog.Debug,
 })
 
-var commands = []provider.Command{}
+var commands = []provider.Command{
+	TestCommand{},
+}
 
-var components = []provider.Component{}
+var components = []provider.Component{
+	TestComponent{},
+}
 
 func main() {
 	bacotell.SetInteractionProvider(provider.NewInteractionProvider("connect_four", commands, components))
-	bacotell.DebugPlugin(logger, os.Getenv("BACOTELL_BOT_TOKEN"))
+	bacotell.DebugPlugin(logger, "MTA4OTk4NTcwODc1Nzg5MzE4MQ.Gm0ijG.KOn1Xus4UjaM9W0jxt2DXaV68S319WY0qWUJ80")
 }
