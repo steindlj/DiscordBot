@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/EliasStar/BacoTell/pkg/bacotell"
@@ -38,9 +40,10 @@ func (LomoPurpleCommand) CommandData() (discordgo.ApplicationCommand, error) {
 func (LomoPurpleCommand) Execute(proxy bacotell.ExecuteProxy) error {
 	img, err := proxy.AttachmentOption("attachment")
 	if err != nil {
-		logger.Info("Cannot find attachment:", err)
+		logger.Info("Cannot find attachment:", "err", err)
 	}
 	url := img.URL
+	downloadImage(url)
 
 	proxy.Respond(bacotell.Response{
 		Content: url,
@@ -52,13 +55,13 @@ func (LomoPurpleCommand) Execute(proxy bacotell.ExecuteProxy) error {
 func load(filePath string) (grid [][]color.Color) {
 	imgFile, err := os.Open(filePath)
 	if err != nil {
-		logger.Info("Cannot read file:", err)
+		logger.Info("Cannot read file:", "err", err)
 	}
 	defer imgFile.Close()
 
 	img, _, err := image.Decode(imgFile)
 	if err != nil {
-		logger.Info("Cannot decode file:", err)
+		logger.Info("Cannot decode file:", "err", err)
 	}
 
 	size := img.Bounds().Size()
@@ -84,7 +87,7 @@ func save(filePath string, grid [][]color.Color) {
 
 	file, err := os.Create(filePath)
 	if err != nil {
-		logger.Info("Cannot create file:", err)
+		logger.Info("Cannot create file:", "err", err)
 	}
 	defer file.Close()
 	jpeg.Encode(file, img, nil)
@@ -118,21 +121,26 @@ func filter(grid [][]color.Color) (irImage [][]color.Color) {
 	return
 }
 
-func downloadImage(url string, path string) error {
-	file, err := os.Create(path)
+func downloadImage(url string) error {
+	file, err := os.Create("dc-plugins/InfraredFilter/temp/temp1.jpg")
 	if err != nil {
-		logger.Info("Cannot create file", err)
+		logger.Info("Cannot create file", "err", err)
 	}
 	defer file.Close()
 
 	response, err := http.Get(url)
 	if err != nil {
-		logger.Info("Cannot get request", err)
+		logger.Info("Cannot get request", "err", err)
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
+		return fmt.Errorf("download faild with status code: %d", response.StatusCode)
+	}
 
+	_, err = io.Copy(file, response.Body)
+	if err != nil {
+		logger.Info("Something went wrong", "err", err)
 	}
 
 	return nil
