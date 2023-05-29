@@ -94,11 +94,12 @@ func (TTSCommand) CommandData() (discordgo.ApplicationCommand, error) {
 }
 
 func (TTSCommand) Execute(proxy bacotell.ExecuteProxy) error {
+	proxy.Defer(false, false, false)
 	text, _ := proxy.StringOption("text")
 	lang, _ := proxy.StringOption("lang")
 	style, _ := proxy.IntegerOption("effect")
 	audioFile, _ := os.Open(Mix(CreateFile(text, lang), style))
-	proxy.Respond(bacotell.Response{
+	proxy.Edit("", bacotell.Response{
 		Content: text + " in " + lang,
 		Files: []*discordgo.File{
 			{
@@ -106,7 +107,7 @@ func (TTSCommand) Execute(proxy bacotell.ExecuteProxy) error {
 				Reader: audioFile,
 			},
 		},
-	}, false, false, false)
+	})
 	return nil
 }
 
