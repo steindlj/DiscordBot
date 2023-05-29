@@ -50,7 +50,7 @@ func (TestCommand) CommandData() (discordgo.ApplicationCommand, error) {
 						Value: 0,
 					},
 					{
-						Name: "yellowp",
+						Name: "yellow",
 						Value: 1,
 					},
 				},
