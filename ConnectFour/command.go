@@ -12,8 +12,8 @@ import (
 
 type TestCommand struct{}
 
-var _ provider.Command = TestCommand{}
 var (
+	_ provider.Command = TestCommand{}
 	permission int64 = discordgo.PermissionSendMessages
 	grid [6][7]int
 	space = 12
@@ -46,11 +46,11 @@ func (TestCommand) CommandData() (discordgo.ApplicationCommand, error) {
 				Required: true,
 				Choices: []*discordgo.ApplicationCommandOptionChoice{
 					{
-						Name: "redchip",
+						Name: "red",
 						Value: 0,
 					},
 					{
-						Name: "yellowchip",
+						Name: "yellowp",
 						Value: 1,
 					},
 				},
