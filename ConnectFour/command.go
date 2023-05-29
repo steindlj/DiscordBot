@@ -19,8 +19,8 @@ var (
 	space = 12
 	width = 48
 	background color.RGBA
-	colorP1 color.RGBA
-	colorP2 color.RGBA
+	colorP1 = color.RGBA{255, 0, 0, 255}
+	colorP2 = color.RGBA{255, 255, 0, 255}
 	min = 0.0
 ) 
 
@@ -99,10 +99,7 @@ func (TestCommand) Execute(proxy provider.ExecuteProxy) error {
 	blue, _ := proxy.IntegerOption("blue")
 	alpha, _ := proxy.IntegerOption("alpha")
 	background = color.RGBA{uint8(red), uint8(green), uint8(blue), uint8(alpha)}
-	if chipColor == 0 {
-		colorP1 = color.RGBA{255, 0, 0, 255}
-		colorP2 = color.RGBA{255, 255, 0, 255}
-	} else {
+	if chipColor != 0 {
 		colorP1 = color.RGBA{255, 255, 0, 255}
 		colorP2 = color.RGBA{255, 0, 0, 255}
 	}
@@ -116,8 +113,17 @@ func (TestCommand) Execute(proxy provider.ExecuteProxy) error {
 			Reader: sendFile,
 			},
 		},
-	}, true, false, false)
+	}, false, false, false)
 	return nil
+}
+
+func setChip(player, col int) {
+	for i := 5; i >= 0; i++ {
+		if grid[i][col] == 0 {
+			grid[i][col] = player
+			return
+		}
+	}
 }
 
 func generateImg(c color.RGBA, file *os.File) {
