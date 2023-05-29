@@ -3,23 +3,26 @@ package main
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"math/rand"
 	"os"
 
 	"github.com/EliasStar/BacoTell/pkg/provider"
 	"github.com/bwmarrin/discordgo"
-	"github.com/faiface/beep"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/wav"
+
+	//"github.com/go-audio/audio"
+	gowav "github.com/go-audio/wav"
 	htgotts "github.com/hegedustibor/htgo-tts"
 	"github.com/hegedustibor/htgo-tts/voices"
 )
 
-type TestCommand struct{}
+type Text2Vocals struct{}
 
-var _ provider.Command = TestCommand{}
+var _ provider.Command = Text2Vocals{}
 var permission int64 = discordgo.PermissionSendMessages
 
-func (TestCommand) CommandData() (discordgo.ApplicationCommand, error) {
+func (Text2Vocals) CommandData() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
 		Type:        discordgo.ChatApplicationCommand,
 		Name:        "tts",
@@ -84,11 +87,11 @@ func (TestCommand) CommandData() (discordgo.ApplicationCommand, error) {
 	}, nil
 }
 
-func (TestCommand) Execute(proxy provider.ExecuteProxy) error {
+func (Text2Vocals) Execute(proxy provider.ExecuteProxy) error {
 	text, _ := proxy.StringOption("text")
 	lang, _ := proxy.StringOption("lang")
-	style, _ := proxy.IntegerOption("effect")
-	audioFile, _ := os.Open(Mix(CreateFile(text, lang), style))
+	//style, _ := proxy.IntegerOption("effect")
+	audioFile, _ := os.Open(Mix(CreateFile(text, lang), 4))
 	proxy.Respond(provider.Response{
 		Content: text + " in " + lang,
 		Files: []*discordgo.File{
@@ -110,20 +113,40 @@ func CreateFile(text string, lang string) string {
 }
 
 func Mix(filename string, style int64) string {
-	file, _ := os.Open(filename)
-	streamer, format, _ := mp3.Decode(file)
-	wavFile, _ := os.CreateTemp(os.TempDir(), "*.wav")
+	mp3File, _ := os.Open(filename)
+	defer mp3File.Close()
+	wavFile, _ := os.Open(converToWAV(mp3File))
+	defer wavFile.Close()
+	buffer, _ := gowav.NewDecoder(wavFile).FullPCMBuffer()
 	switch style {
 	case 0:
-		wav.Encode(wavFile, streamer, format)
+		return wavFile.Name()
 	case 1:
-		speed := beep.Resample(4, format.SampleRate, format.SampleRate*3/4, streamer)
-		wav.Encode(wavFile, speed, format)
+		for i := range buffer.Data {
+			buffer.Data[i] *= 5
+		}
 	case 2:
-		slowed := beep.Resample(4, format.SampleRate, format.SampleRate*3/2, streamer)
-		wav.Encode(wavFile, slowed, format)
+		for i := range buffer.Data {
+			buffer.Data[i] = int(float64(buffer.Data[i])*0.9)
+			buffer.Data[i] /= 2
+			buffer.Data[i] += rand.Intn(100) - 50
+		}
+	case 3:
+		buffer.Format.SampleRate /= 2 
+	case 4: 
+		buffer.Format.SampleRate *= 2
 	}
-	wavFile.Close()
+	newFile, _ := os.CreateTemp(os.TempDir(), "*.wav")
+	encoder := gowav.NewEncoder(newFile, buffer.Format.SampleRate, buffer.SourceBitDepth, buffer.Format.NumChannels, 1)
+	encoder.Write(buffer)
+	encoder.Close()
+	return newFile.Name()
+}
+
+func converToWAV(file *os.File) string {
+	streamer, format, _ := mp3.Decode(file)
+	wavFile, _ := os.CreateTemp(os.TempDir(), "*.wav")
+	wav.Encode(wavFile, streamer, format)
 	return wavFile.Name()
 }
 
@@ -132,7 +155,7 @@ func generateHash(name string) string {
 	return hex.EncodeToString(byte[:])
 }
 
-// func (TestCommand) Autocomplete(provider.InteractionProxy) error {
+// func (Text2Vocals) Autocomplete(provider.InteractionProxy) error {
 // 	logger.Info("execute command")
 // 	return nil
 // }

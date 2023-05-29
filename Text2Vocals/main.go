@@ -15,7 +15,7 @@ var logger = hclog.New(&hclog.LoggerOptions{
 })
 
 var commands = []provider.Command{ 
-	TestCommand{}, 
+	Text2Vocals{}, 
 }
 
 var components = []provider.Component{}
