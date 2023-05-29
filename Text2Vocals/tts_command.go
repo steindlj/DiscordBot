@@ -10,8 +10,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/wav"
-
-	//"github.com/go-audio/audio"
 	gowav "github.com/go-audio/wav"
 	htgotts "github.com/hegedustibor/htgo-tts"
 	"github.com/hegedustibor/htgo-tts/voices"
@@ -84,7 +82,7 @@ func (TTSCommand) CommandData() (discordgo.ApplicationCommand, error) {
 						Value: 3,
 					},
 					{
-						Name: "sped up",
+						Name: "sped_up",
 						Value: 4,
 					},
 				},
@@ -95,16 +93,29 @@ func (TTSCommand) CommandData() (discordgo.ApplicationCommand, error) {
 
 func (TTSCommand) Execute(proxy bacotell.ExecuteProxy) error {
 	proxy.Defer(false, false, false)
-	text, _ := proxy.StringOption("text")
-	lang, _ := proxy.StringOption("lang")
-	style, _ := proxy.IntegerOption("effect")
-	audioFile, _ := os.Open(Mix(CreateFile(text, lang), style))
+	text, err := proxy.StringOption("text")
+	if err != nil {
+		logger.Info("StringOption error for text", "err", err)
+	}
+	lang, err := proxy.StringOption("lang")
+	if err != nil {
+		logger.Info("StringOption error for lang", "err", err)
+	}
+	effect, err := proxy.IntegerOption("effect")
+	if err != nil {
+		logger.Info("IntegerOption error for effect", "err", err)
+	}
+	fileToSend, err := os.Open(Mix(CreateFile(text, lang), effect))
+	if err != nil {
+		logger.Info("Error opening file", "err", err)
+	}
+	defer fileToSend.Close()
 	proxy.Edit("", bacotell.Response{
 		Content: text + " in " + lang,
 		Files: []*discordgo.File{
 			{
 				Name:   "audio.wav",
-				Reader: audioFile,
+				Reader: fileToSend,
 			},
 		},
 	})
@@ -119,31 +130,43 @@ func CreateFile(text string, lang string) string {
 	return dir + "\\" + name + ".mp3"
 }
 
-func Mix(filename string, style int64) string {
-	mp3File, _ := os.Open(filename)
+func Mix(filename string, effect int64) string {
+	mp3File, err := os.Open(filename)
+	if err != nil {
+		logger.Info("Error opening mp3", "err", err)
+	}
 	defer mp3File.Close()
-	wavFile, _ := os.Open(converToWAV(mp3File))
+	wavFile, err := os.Open(converToWAV(mp3File))
+	if err != nil {
+		logger.Info("Error opening wav", "err", err)
+	}
 	defer wavFile.Close()
-	buffer, _ := gowav.NewDecoder(wavFile).FullPCMBuffer()
-	switch style {
-	case 0:
+	buffer, err := gowav.NewDecoder(wavFile).FullPCMBuffer()
+	if err != nil {
+		logger.Info("Error getting PCMBuffer", "err", err)
+	}
+	switch effect {
+	case 0: // default
 		return wavFile.Name()
-	case 1:
+	case 1: // distortion
 		for i := range buffer.Data {
 			buffer.Data[i] *= 5
 		}
-	case 2:
+	case 2: // "vintage"
 		for i := range buffer.Data {
 			buffer.Data[i] = int(float64(buffer.Data[i]) * 0.9)
 			buffer.Data[i] /= 2
 			buffer.Data[i] += rand.Intn(100) - 50
 		}
-	case 3:
+	case 3:	// slowed
 		buffer.Format.SampleRate /= 2
-	case 4:
+	case 4: // sped up
 		buffer.Format.SampleRate *= 2
 	}
-	newFile, _ := os.CreateTemp(os.TempDir(), "*.wav")
+	newFile, err := os.CreateTemp(os.TempDir(), "*.wav")
+	if err != nil {
+		logger.Info("Error creating temp wav", "err", err)
+	}
 	encoder := gowav.NewEncoder(newFile, buffer.Format.SampleRate, buffer.SourceBitDepth, buffer.Format.NumChannels, 1)
 	encoder.Write(buffer)
 	encoder.Close()
@@ -151,8 +174,14 @@ func Mix(filename string, style int64) string {
 }
 
 func converToWAV(file *os.File) string {
-	streamer, format, _ := mp3.Decode(file)
-	wavFile, _ := os.CreateTemp(os.TempDir(), "*.wav")
+	streamer, format, err := mp3.Decode(file)
+	if err != nil {
+		logger.Info("Error decoding mp3", "err", err)
+	}
+	wavFile, err := os.CreateTemp(os.TempDir(), "*.wav")
+	if err != nil {
+		logger.Info("Error creating temp wav", "err", err)
+	}
 	wav.Encode(wavFile, streamer, format)
 	return wavFile.Name()
 }

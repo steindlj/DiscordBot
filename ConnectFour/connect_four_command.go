@@ -89,12 +89,30 @@ func (ConnectFourCommand) CommandData() (discordgo.ApplicationCommand, error) {
 }
 
 func (ConnectFourCommand) Execute(proxy bacotell.ExecuteProxy) error {
-	file, _ := os.CreateTemp(os.TempDir(), "*.png")
-	chipColor, _ := proxy.IntegerOption("chip_color")
-	red, _ := proxy.IntegerOption("red")
-	green, _ := proxy.IntegerOption("green")
-	blue, _ := proxy.IntegerOption("blue")
-	alpha, _ := proxy.IntegerOption("alpha")
+	file, err := os.CreateTemp(os.TempDir(), "*.png")
+	if err != nil {
+		logger.Info("Error creating temp png", "err", err)
+	}
+	chipColor, err := proxy.IntegerOption("chip_color")
+	if err != nil {
+		logger.Info("IntegerOption error for chip_color", "err", err)
+	}
+	red, err := proxy.IntegerOption("red")
+	if err != nil {
+		logger.Info("IntegerOption error for red", "err", err)
+	}
+	green, err := proxy.IntegerOption("green")
+	if err != nil {
+		logger.Info("IntegerOption error for green", "err", err)
+	}
+	blue, err := proxy.IntegerOption("blue")
+	if err != nil {
+		logger.Info("IntegerOption error for blue", "err", err)
+	}
+	alpha, err := proxy.IntegerOption("alpha")
+	if err != nil {
+		logger.Info("IntegerOption error for alpha", "err", err)
+	}
 	background = color.RGBA{uint8(red), uint8(green), uint8(blue), uint8(alpha)}
 	if chipColor != 0 {
 		colorP1 = color.RGBA{255, 255, 0, 255}
@@ -102,12 +120,16 @@ func (ConnectFourCommand) Execute(proxy bacotell.ExecuteProxy) error {
 	}
 	checkWin()
 	generateImg(background, file)
-	sendFile, _ := os.Open(file.Name())
+	fileToSend, err := os.Open(file.Name())
+	if err != nil {
+		logger.Info("Error opening file", "err", err)
+	}
+	defer fileToSend.Close()
 	proxy.Respond(bacotell.Response{
 		Files: []*discordgo.File{
 			{
 				Name:   "image.png",
-				Reader: sendFile,
+				Reader: fileToSend,
 			},
 		},
 	}, false, false, false)
