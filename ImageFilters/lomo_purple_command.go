@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 
 	"github.com/EliasStar/BacoTell/pkg/bacotell"
 	"github.com/PerformLine/go-stockutil/colorutil"
@@ -43,11 +44,28 @@ func (LomoPurpleCommand) Execute(proxy bacotell.ExecuteProxy) error {
 		logger.Info("Cannot find attachment:", "err", err)
 	}
 	url := img.URL
-	downloadImage(url)
+	path, err := downloadImage(url, "temp")
+	if err != nil {
+		logger.Info("Something went wrong:", err)
+	}
+	grid := load(path)
+	save("temp", img.Filename, filter(grid))
+	// sendImg, err := os.Open(newPath)
+	if err != nil {
+		logger.Info("Something went wrong,", err)
+	}
 
 	proxy.Respond(bacotell.Response{
 		Content: url,
+		// Files: []*discordgo.File{
+		// 	{
+		// 		Name:   img.Filename,
+		// 		Reader: sendImg,
+		// 	},
+		// },
 	}, false, false, false)
+
+	// deleteDir("temp")
 	return nil
 }
 
@@ -75,7 +93,7 @@ func load(filePath string) (grid [][]color.Color) {
 	return
 }
 
-func save(filePath string, grid [][]color.Color) {
+func save(directory string, fileName string, grid [][]color.Color) string {
 	xlen, ylen := len(grid), len(grid[0])
 	rect := image.Rect(0, 0, xlen, ylen)
 	img := image.NewNRGBA(rect)
@@ -85,12 +103,14 @@ func save(filePath string, grid [][]color.Color) {
 		}
 	}
 
+	filePath := filepath.Join(directory, "IR"+fileName)
 	file, err := os.Create(filePath)
 	if err != nil {
-		logger.Info("Cannot create file:", "err", err)
+		logger.Info("Cannot create file", "err", err)
 	}
 	defer file.Close()
 	jpeg.Encode(file, img, nil)
+	return filePath
 }
 
 func filter(grid [][]color.Color) (irImage [][]color.Color) {
@@ -121,8 +141,16 @@ func filter(grid [][]color.Color) (irImage [][]color.Color) {
 	return
 }
 
-func downloadImage(url string) error {
-	file, err := os.Create("dc-plugins/InfraredFilter/temp/temp1.jpg")
+func downloadImage(url string, directory string) (string, error) {
+	err:= os.MkdirAll(directory, os.ModePerm)
+	if err != nil {
+		logger.Info("Create directory failed", err)
+	}
+	
+	fileName := filepath.Base(url)
+	filePath := filepath.Join(directory, fileName)
+
+	file, err := os.Create(filePath)
 	if err != nil {
 		logger.Info("Cannot create file", "err", err)
 	}
@@ -135,7 +163,7 @@ func downloadImage(url string) error {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("download faild with status code: %d", response.StatusCode)
+		return "", fmt.Errorf("download failed with status code: %d", response.StatusCode)
 	}
 
 	_, err = io.Copy(file, response.Body)
@@ -143,5 +171,13 @@ func downloadImage(url string) error {
 		logger.Info("Something went wrong", "err", err)
 	}
 
+	return filePath, nil
+}
+
+func deleteDir(directory string) error {
+	err := os.RemoveAll(directory)
+	if err != nil {
+		logger.Info("Cannot find the directory", err)
+	}
 	return nil
 }
