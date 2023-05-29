@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/EliasStar/BacoTell/pkg/provider"
@@ -12,7 +14,6 @@ import (
 	"image/jpeg"
 	"log"
 	"os"
-	"path/filepath"
 )
 
 type Infrared struct{}
@@ -47,6 +48,7 @@ func (Infrared) Execute(proxy provider.ExecuteProxy) error {
 		log.Println("Cannot find attachment:", err)
 	}
 	url := img.URL
+	downloadImage(url)
 
 	proxy.Respond(provider.Response{
 		Content: url,
@@ -124,8 +126,8 @@ func filter (grid [][]color.Color) (irImage [][]color.Color) {
 	return
 }
 
-func downloadImage (url string, path string) error {
-	file, err := os.Create(path)
+func downloadImage (url string) error {
+	file, err := os.Create("dc-plugins/InfraredFilter/temp/temp1.jpg")
 	if err != nil {
 		log.Println("Cannot create file", err)
 	}
@@ -138,6 +140,13 @@ func downloadImage (url string, path string) error {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		
+		return fmt.Errorf("download faild with status code: %d", response.StatusCode)
 	}
+
+	_, err = io.Copy(file, response.Body)
+	if err != nil {
+		log.Println("Something went wrong", err)
+	}
+
+	return nil
 }
