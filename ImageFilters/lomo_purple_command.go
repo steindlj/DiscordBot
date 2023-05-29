@@ -49,20 +49,20 @@ func (LomoPurpleCommand) Execute(proxy bacotell.ExecuteProxy) error {
 		logger.Info("Something went wrong:", err)
 	}
 	grid := load(path)
-	save("temp", img.Filename, filter(grid))
-	// sendImg, err := os.Open(newPath)
+	newPath := save("temp", img.Filename, filter(grid))
+	sendImg, err := os.Open(newPath)
 	if err != nil {
 		logger.Info("Something went wrong,", err)
 	}
 
 	proxy.Respond(bacotell.Response{
 		Content: url,
-		// Files: []*discordgo.File{
-		// 	{
-		// 		Name:   img.Filename,
-		// 		Reader: sendImg,
-		// 	},
-		// },
+		Files: []*discordgo.File{
+			{
+				Name:   "img.jpg",
+				Reader: sendImg,
+			},
+		},
 	}, false, false, false)
 
 	// deleteDir("temp")
@@ -103,13 +103,13 @@ func save(directory string, fileName string, grid [][]color.Color) string {
 		}
 	}
 
-	filePath := filepath.Join(directory, "IR"+fileName)
+	filePath := filepath.Join(directory, "IR_"+fileName)
 	file, err := os.Create(filePath)
 	if err != nil {
 		logger.Info("Cannot create file", "err", err)
 	}
 	defer file.Close()
-	jpeg.Encode(file, img, nil)
+	jpeg.Encode(file, img, &jpeg.Options{Quality: 100})
 	return filePath
 }
 
