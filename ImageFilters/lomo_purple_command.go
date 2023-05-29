@@ -44,7 +44,7 @@ func (LomoPurpleCommand) Execute(proxy bacotell.ExecuteProxy) error {
 		logger.Info("Cannot find attachment:", "err", err)
 	}
 	url := img.URL
-	path, err := downloadImage(url, "temp")
+	path, err := downloadImage(url)
 	if err != nil {
 		logger.Info("Something went wrong:", err)
 	}

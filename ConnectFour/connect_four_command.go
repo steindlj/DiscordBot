@@ -89,6 +89,7 @@ func (ConnectFourCommand) CommandData() (discordgo.ApplicationCommand, error) {
 }
 
 func (ConnectFourCommand) Execute(proxy bacotell.ExecuteProxy) error {
+	proxy.Defer(false, false, false)
 	file, err := os.CreateTemp(os.TempDir(), "*.png")
 	if err != nil {
 		logger.Info("Error creating temp png", "err", err)
