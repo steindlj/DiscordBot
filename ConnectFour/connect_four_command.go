@@ -39,7 +39,7 @@ func (ConnectFourCommand) CommandData() (discordgo.ApplicationCommand, error) {
 			{
 				Type:        discordgo.ApplicationCommandOptionInteger,
 				Name:        "chip_color",
-				Description: "Yellow or Red",
+				Description: "Red or Yellow",
 				Required:    true,
 				Choices: []*discordgo.ApplicationCommandOptionChoice{
 					{

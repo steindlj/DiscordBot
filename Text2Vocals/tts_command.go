@@ -72,12 +72,20 @@ func (TTSCommand) CommandData() (discordgo.ApplicationCommand, error) {
 						Value: 0,
 					},
 					{
-						Name:  "sped up",
+						Name:  "distortion",
 						Value: 1,
 					},
 					{
-						Name:  "slowed",
+						Name:  "vintage",
 						Value: 2,
+					},
+					{
+						Name: "slowed",
+						Value: 3,
+					},
+					{
+						Name: "sped up",
+						Value: 4,
 					},
 				},
 			},
@@ -88,8 +96,8 @@ func (TTSCommand) CommandData() (discordgo.ApplicationCommand, error) {
 func (TTSCommand) Execute(proxy bacotell.ExecuteProxy) error {
 	text, _ := proxy.StringOption("text")
 	lang, _ := proxy.StringOption("lang")
-	//style, _ := proxy.IntegerOption("effect")
-	audioFile, _ := os.Open(Mix(CreateFile(text, lang), 4))
+	style, _ := proxy.IntegerOption("effect")
+	audioFile, _ := os.Open(Mix(CreateFile(text, lang), style))
 	proxy.Respond(bacotell.Response{
 		Content: text + " in " + lang,
 		Files: []*discordgo.File{
