@@ -6,92 +6,89 @@ import (
 	"image/png"
 	"os"
 
-	"github.com/EliasStar/BacoTell/pkg/provider"
+	"github.com/EliasStar/BacoTell/pkg/bacotell"
+	"github.com/EliasStar/BacoTell/pkg/bacotell_util"
 	"github.com/bwmarrin/discordgo"
 )
 
-type TestCommand struct{}
-
 var (
-	_ provider.Command = TestCommand{}
-	permission int64 = discordgo.PermissionSendMessages
-	grid [6][7]int
-	space = 12
-	width = 48
+	grid       [6][7]int
+	space      = 12
+	width      = 48
 	background color.RGBA
-	colorP1 = color.RGBA{255, 0, 0, 255}
-	colorP2 = color.RGBA{255, 255, 0, 255}
-	min = 0.0
-) 
+	colorP1    = color.RGBA{255, 0, 0, 255}
+	colorP2    = color.RGBA{255, 255, 0, 255}
+)
 
+type ConnectFourCommand struct{}
 
+var _ bacotell.Command = ConnectFourCommand{}
 
-func (TestCommand) CommandData() (discordgo.ApplicationCommand, error) {
+func (ConnectFourCommand) CommandData() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
 		Type:        discordgo.ChatApplicationCommand,
 		Name:        "connectfour",
 		Description: "Connect Four",
-		DefaultMemberPermissions: &permission,
 		Options: []*discordgo.ApplicationCommandOption{
 			{
-				Type: discordgo.ApplicationCommandOptionUser,
-				Name: "oponent",
-				Description: "Oponent",
-				Required: true,
-			}, 
+				Type:        discordgo.ApplicationCommandOptionUser,
+				Name:        "opponent",
+				Description: "Opponent",
+				Required:    true,
+			},
 			{
-				Type: discordgo.ApplicationCommandOptionInteger,
-				Name: "chip_color",
+				Type:        discordgo.ApplicationCommandOptionInteger,
+				Name:        "chip_color",
 				Description: "Yellow or Red",
-				Required: true,
+				Required:    true,
 				Choices: []*discordgo.ApplicationCommandOptionChoice{
 					{
-						Name: "red",
+						Name:  "red",
 						Value: 0,
 					},
 					{
-						Name: "yellow",
+						Name:  "yellow",
 						Value: 1,
 					},
 				},
 			},
 			{
-				Type: discordgo.ApplicationCommandOptionInteger,
-				Name: "red",
+				Type:        discordgo.ApplicationCommandOptionInteger,
+				Name:        "red",
 				Description: "Red value",
-				Required: true,
-				MinValue: &min,
-				MaxValue: 255,
+				Required:    true,
+				MinValue:    bacotell_util.Ptr(0.0),
+				MaxValue:    255,
 			},
 			{
-				Type: discordgo.ApplicationCommandOptionInteger,
-				Name: "green",
+				Type:        discordgo.ApplicationCommandOptionInteger,
+				Name:        "green",
 				Description: "Green value",
-				Required: true,
-				MinValue: &min,
-				MaxValue: 255,
+				Required:    true,
+				MinValue:    bacotell_util.Ptr(0.0),
+				MaxValue:    255,
 			},
 			{
-				Type: discordgo.ApplicationCommandOptionInteger,
-				Name: "blue",
+				Type:        discordgo.ApplicationCommandOptionInteger,
+				Name:        "blue",
 				Description: "Blue value",
-				Required: true,
-				MinValue: &min,
-				MaxValue: 255,
+				Required:    true,
+				MinValue:    bacotell_util.Ptr(0.0),
+				MaxValue:    255,
 			},
 			{
-				Type: discordgo.ApplicationCommandOptionInteger,
-				Name: "alpha",
+				Type:        discordgo.ApplicationCommandOptionInteger,
+				Name:        "alpha",
 				Description: "Alpha value",
-				Required: true,
-				MinValue: &min,
-				MaxValue: 255,
+				Required:    true,
+				MinValue:    bacotell_util.Ptr(0.0),
+				MaxValue:    255,
 			},
 		},
 	}, nil
 }
 
-func (TestCommand) Execute(proxy provider.ExecuteProxy) error {
+func (ConnectFourCommand) Execute(proxy bacotell.ExecuteProxy) error {
 	file, _ := os.CreateTemp(os.TempDir(), "*.png")
 	chipColor, _ := proxy.IntegerOption("chip_color")
 	red, _ := proxy.IntegerOption("red")
@@ -106,11 +103,11 @@ func (TestCommand) Execute(proxy provider.ExecuteProxy) error {
 	checkWin()
 	generateImg(background, file)
 	sendFile, _ := os.Open(file.Name())
-	proxy.Respond(provider.Response{
+	proxy.Respond(bacotell.Response{
 		Files: []*discordgo.File{
 			{
-			Name: "image.png",
-			Reader: sendFile,
+				Name:   "image.png",
+				Reader: sendFile,
 			},
 		},
 	}, false, false, false)
@@ -130,14 +127,14 @@ func generateImg(c color.RGBA, file *os.File) {
 	img := image.NewRGBA(image.Rect(0, 0, 7*width+8*space, 6*width+7*space))
 	for i := 0; i < 7*width+8*space; i++ {
 		for j := 0; j < 6*width+7*space; j++ {
-			img.Set(i,j,c)
+			img.Set(i, j, c)
 		}
 	}
 	for i := 0; i < 6; i++ {
 		for j := 0; j < 7; j++ {
 			colorField(img, i, j)
 		}
-	} 
+	}
 	png.Encode(file, img)
 }
 
@@ -164,18 +161,22 @@ func checkWin() bool {
 }
 
 func checkRows() bool {
-	for i := 0; i < 6; i++{
+	for i := 0; i < 6; i++ {
 		for j := 0; j < 7-3; j++ {
-			if grid[i][j] == grid[i][j+1] && grid[i][j+1] == grid[i][j+2] && grid[i][j+2] == grid[i][j+3] && grid[i][j+3] != 0 { return true }
+			if grid[i][j] == grid[i][j+1] && grid[i][j+1] == grid[i][j+2] && grid[i][j+2] == grid[i][j+3] && grid[i][j+3] != 0 {
+				return true
+			}
 		}
 	}
 	return false
 }
 
 func checkCols() bool {
-	for i := 0; i < 7; i++{
+	for i := 0; i < 7; i++ {
 		for j := 0; j < 6-3; j++ {
-			if grid[j][i] == grid[j+1][i] && grid[j+1][i] == grid[j+2][i] && grid[j+2][i] == grid[j+3][i] && grid[j+3][i] != 0 { return true }
+			if grid[j][i] == grid[j+1][i] && grid[j+1][i] == grid[j+2][i] && grid[j+2][i] == grid[j+3][i] && grid[j+3][i] != 0 {
+				return true
+			}
 		}
 	}
 	return false
@@ -215,7 +216,7 @@ func checkDiagonalsRight() bool {
 	return false
 }
 
-func fromUpperLeft(i,j int) bool {
+func fromUpperLeft(i, j int) bool {
 	for i+3 <= 5 && j+3 <= 6 {
 		if grid[i][j] == grid[i+1][j+1] && grid[i+1][j+1] == grid[i+2][j+2] && grid[i+2][j+2] == grid[i+3][j+3] && grid[i+3][j+3] != 0 {
 			return true
@@ -226,7 +227,7 @@ func fromUpperLeft(i,j int) bool {
 	return false
 }
 
-func fromUpperRight(i,j int) bool {
+func fromUpperRight(i, j int) bool {
 	for i+3 <= 5 && j-3 >= 0 {
 		if grid[i][j] == grid[i+1][j-1] && grid[i+1][j-1] == grid[i+2][j-2] && grid[i+2][j-2] == grid[i+3][j-3] && grid[i+3][j-3] != 0 {
 			return true
@@ -236,9 +237,3 @@ func fromUpperRight(i,j int) bool {
 	}
 	return false
 }
-
-
-// func (TestCommand) Autocomplete(provider.InteractionProxy) error {
-// 	logger.Info("execute command")
-// 	return nil
-// }

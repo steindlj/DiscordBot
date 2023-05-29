@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"os"
 
-	"github.com/EliasStar/BacoTell/pkg/provider"
+	"github.com/EliasStar/BacoTell/pkg/bacotell"
 	"github.com/bwmarrin/discordgo"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/wav"
@@ -17,17 +17,15 @@ import (
 	"github.com/hegedustibor/htgo-tts/voices"
 )
 
-type Text2Vocals struct{}
+type TTSCommand struct{}
 
-var _ provider.Command = Text2Vocals{}
-var permission int64 = discordgo.PermissionSendMessages
+var _ bacotell.Command = TTSCommand{}
 
-func (Text2Vocals) CommandData() (discordgo.ApplicationCommand, error) {
+func (TTSCommand) CommandData() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
 		Type:        discordgo.ChatApplicationCommand,
 		Name:        "tts",
 		Description: "Text-to-Speech",
-		DefaultMemberPermissions: &permission,
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Type:        discordgo.ApplicationCommandOptionString,
@@ -74,11 +72,11 @@ func (Text2Vocals) CommandData() (discordgo.ApplicationCommand, error) {
 						Value: 0,
 					},
 					{
-						Name: "sped up",
+						Name:  "sped up",
 						Value: 1,
 					},
 					{
-						Name: "slowed",
+						Name:  "slowed",
 						Value: 2,
 					},
 				},
@@ -87,17 +85,17 @@ func (Text2Vocals) CommandData() (discordgo.ApplicationCommand, error) {
 	}, nil
 }
 
-func (Text2Vocals) Execute(proxy provider.ExecuteProxy) error {
+func (TTSCommand) Execute(proxy bacotell.ExecuteProxy) error {
 	text, _ := proxy.StringOption("text")
 	lang, _ := proxy.StringOption("lang")
 	//style, _ := proxy.IntegerOption("effect")
 	audioFile, _ := os.Open(Mix(CreateFile(text, lang), 4))
-	proxy.Respond(provider.Response{
+	proxy.Respond(bacotell.Response{
 		Content: text + " in " + lang,
 		Files: []*discordgo.File{
 			{
-			Name: "audio.wav",
-			Reader: audioFile,
+				Name:   "audio.wav",
+				Reader: audioFile,
 			},
 		},
 	}, false, false, false)
@@ -127,13 +125,13 @@ func Mix(filename string, style int64) string {
 		}
 	case 2:
 		for i := range buffer.Data {
-			buffer.Data[i] = int(float64(buffer.Data[i])*0.9)
+			buffer.Data[i] = int(float64(buffer.Data[i]) * 0.9)
 			buffer.Data[i] /= 2
 			buffer.Data[i] += rand.Intn(100) - 50
 		}
 	case 3:
-		buffer.Format.SampleRate /= 2 
-	case 4: 
+		buffer.Format.SampleRate /= 2
+	case 4:
 		buffer.Format.SampleRate *= 2
 	}
 	newFile, _ := os.CreateTemp(os.TempDir(), "*.wav")
@@ -154,8 +152,3 @@ func generateHash(name string) string {
 	byte := md5.Sum([]byte(name))
 	return hex.EncodeToString(byte[:])
 }
-
-// func (Text2Vocals) Autocomplete(provider.InteractionProxy) error {
-// 	logger.Info("execute command")
-// 	return nil
-// }

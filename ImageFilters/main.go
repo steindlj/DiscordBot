@@ -10,7 +10,7 @@ var logger hclog.Logger
 var closeChan <-chan struct{}
 
 var commands = []bacotell.Command{
-	ConnectFourCommand{},
+	LomoPurpleCommand{},
 }
 
 var components = []bacotell.Component{}
@@ -19,6 +19,6 @@ func main() {
 	bacotell_plugin.SetApplicationCommands(commands)
 	bacotell_plugin.SetMessageComponents(components)
 
-	logger, closeChan, _ = bacotell_plugin.Debug("connect_four", "MTA4OTk3MjA5MTE0MDQ0NDIwMA.GD1PSP.3i4VfMmnHuPjenyFgUUxkpDoJqw_zC_pW1sMsQ")
+	logger, closeChan, _ = bacotell_plugin.Debug("image_filters", "MTA4OTk4MzgzMDgwMDIxNjIxNA.G97SCC.1bHce01KOL4w1ybgzcOVDQYGgtR3fxW_PmHs4E")
 	<-closeChan
 }
