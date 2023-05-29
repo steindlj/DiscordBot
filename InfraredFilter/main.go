@@ -14,11 +14,13 @@ var logger = hclog.New(&hclog.LoggerOptions{
 	Level:  hclog.Debug,
 })
 
-var commands = []provider.Command{}
+var commands = []provider.Command{
+	Infrared{},
+}
 
 var components = []provider.Component{}
 
 func main() {
 	bacotell.SetInteractionProvider(provider.NewInteractionProvider("infrared_filter", commands, components))
-	bacotell.DebugPlugin(logger, os.Getenv("BACOTELL_BOT_TOKEN"))
+	bacotell.DebugPlugin(logger, "MTA4OTk4MzgzMDgwMDIxNjIxNA.G97SCC.1bHce01KOL4w1ybgzcOVDQYGgtR3fxW_PmHs4E")
 }
