@@ -5,15 +5,14 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
-
-	"github.com/EliasStar/BacoTell/pkg/bacotell"
-	"github.com/PerformLine/go-stockutil/colorutil"
-	"github.com/bwmarrin/discordgo"
-
 	"image"
 	"image/color"
 	"image/jpeg"
 	"os"
+
+	"github.com/EliasStar/BacoTell/pkg/bacotell"
+	"github.com/PerformLine/go-stockutil/colorutil"
+	"github.com/bwmarrin/discordgo"
 )
 
 type LomoPurpleCommand struct{}
@@ -43,37 +42,37 @@ func (LomoPurpleCommand) Execute(proxy bacotell.ExecuteProxy) error {
 
 	img, err := proxy.AttachmentOption("attachment")
 	if err != nil {
-		logger.Info("Cannot find attachment:", "err", err)
+		return fmt.Errorf("failed to retrieve attachment: ", err)
 	}
+
 	url := img.URL
-	path, err := downloadImage(url, "temp")
+	tempDir := "temp"
+	path, err := downloadImage(url, tempDir)
 	if err != nil {
-		logger.Info("Something went wrong:", err)
+		return fmt.Errorf("failed to download image: ", err)
 	}
 	grid := load(path)
-	newPath := save("temp", img.Filename, filter(grid))
-	logger.Info(newPath)
+	newPath := save(tempDir, img.Filename, filter(grid))
+	
 	sendImg, err := os.Open(newPath)
-	logger.Info(sendImg.Name())
 	if err != nil {
-		logger.Info("Something went wrong,", err)
+		return fmt.Errorf("failed to open new image: ", err)
 	}
 	defer sendImg.Close()
 
-	proxy.Edit("",bacotell.Response{
+	proxy.Edit("", bacotell.Response{
 		Content: url,
 		Files: []*discordgo.File{
 			{
-				Name:   "img.jpg",
+				Name:   img.Filename,
 				Reader: sendImg,
 			},
 		},
 	})
-	// deleteDir("temp")
+	deleteDir(tempDir)
 	return nil
 }
 
-/* filepath noch korrigieren mit Input */
 func load(filePath string) (grid [][]color.Color) {
 	imgFile, err := os.Open(filePath)
 	if err != nil {
@@ -148,7 +147,7 @@ func filter(grid [][]color.Color) (irImage [][]color.Color) {
 func downloadImage(url string, directory string) (string, error) {
 	err:= os.MkdirAll(directory, os.ModePerm)
 	if err != nil {
-		logger.Info("Create directory failed", err)
+		return "", fmt.Errorf("failed to create directory: ", err)
 	}
 	
 	fileName := filepath.Base(url)
@@ -156,13 +155,13 @@ func downloadImage(url string, directory string) (string, error) {
 
 	file, err := os.Create(filePath)
 	if err != nil {
-		logger.Info("Cannot create file", "err", err)
+		return "", fmt.Errorf("failed to create file: ", err)
 	}
 	defer file.Close()
 
 	response, err := http.Get(url)
 	if err != nil {
-		logger.Info("Cannot get request", "err", err)
+		return "", fmt.Errorf("failed to perform HTTP GET request: ", err)
 	}
 	defer response.Body.Close()
 
@@ -172,7 +171,7 @@ func downloadImage(url string, directory string) (string, error) {
 
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-		logger.Info("Something went wrong", "err", err)
+		return "", fmt.Errorf("failed to write file: ",err)
 	}
 
 	return filePath, nil
@@ -181,7 +180,7 @@ func downloadImage(url string, directory string) (string, error) {
 func deleteDir(directory string) error {
 	err := os.RemoveAll(directory)
 	if err != nil {
-		logger.Info("Cannot find the directory", err)
+		return fmt.Errorf("Failed to delete directory: ",err)
 	}
 	return nil
 }
