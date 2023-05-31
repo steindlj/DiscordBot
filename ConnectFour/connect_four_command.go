@@ -89,7 +89,7 @@ func (ConnectFourCommand) CommandData() (discordgo.ApplicationCommand, error) {
 }
 
 func (ConnectFourCommand) Execute(proxy bacotell.ExecuteProxy) error {
-	proxy.Defer(false, false, false)
+	proxy.Defer(true)
 	file, err := os.CreateTemp(os.TempDir(), "*.png")
 	if err != nil {
 		logger.Info("Error creating temp png", "err", err)
@@ -126,14 +126,14 @@ func (ConnectFourCommand) Execute(proxy bacotell.ExecuteProxy) error {
 		logger.Info("Error opening file", "err", err)
 	}
 	defer fileToSend.Close()
-	proxy.Respond(bacotell.Response{
+	proxy.Followup(bacotell.Response{
 		Files: []*discordgo.File{
 			{
 				Name:   "image.png",
 				Reader: fileToSend,
 			},
 		},
-	}, false, false, false)
+	}, false)
 	return nil
 }
 

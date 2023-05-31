@@ -92,7 +92,7 @@ func (TTSCommand) CommandData() (discordgo.ApplicationCommand, error) {
 }
 
 func (TTSCommand) Execute(proxy bacotell.ExecuteProxy) error {
-	proxy.Defer(false, false, false)
+	proxy.Defer(true)
 	text, err := proxy.StringOption("text")
 	if err != nil {
 		logger.Info("StringOption error for text", "err", err)
@@ -110,7 +110,7 @@ func (TTSCommand) Execute(proxy bacotell.ExecuteProxy) error {
 		logger.Info("Error opening file", "err", err)
 	}
 	defer fileToSend.Close()
-	proxy.Edit("", bacotell.Response{
+	proxy.Followup(bacotell.Response{
 		Content: text + " in " + lang,
 		Files: []*discordgo.File{
 			{
@@ -118,7 +118,7 @@ func (TTSCommand) Execute(proxy bacotell.ExecuteProxy) error {
 				Reader: fileToSend,
 			},
 		},
-	})
+	}, false)
 	return nil
 }
 

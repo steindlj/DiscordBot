@@ -38,7 +38,7 @@ func (LomoPurpleCommand) CommandData() (discordgo.ApplicationCommand, error) {
 
 // Execute implements provider.Command
 func (LomoPurpleCommand) Execute(proxy bacotell.ExecuteProxy) error {
-	proxy.Defer(false, false, false)
+	proxy.Defer(true)
 
 	img, err := proxy.AttachmentOption("attachment")
 	if err != nil {
@@ -60,7 +60,7 @@ func (LomoPurpleCommand) Execute(proxy bacotell.ExecuteProxy) error {
 	}
 	defer sendImg.Close()
 
-	proxy.Edit("", bacotell.Response{
+	proxy.Followup(bacotell.Response{
 		Content: url,
 		Files: []*discordgo.File{
 			{
@@ -68,7 +68,7 @@ func (LomoPurpleCommand) Execute(proxy bacotell.ExecuteProxy) error {
 				Reader: sendImg,
 			},
 		},
-	})
+	}, false)
 	deleteDir(tempDir)
 	return nil
 }
