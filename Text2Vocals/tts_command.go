@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"os"
 
-	"github.com/EliasStar/BacoTell/pkg/bacotell"
+	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
 	"github.com/bwmarrin/discordgo"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/wav"
@@ -17,7 +17,7 @@ import (
 
 type TTSCommand struct{}
 
-var _ bacotell.Command = TTSCommand{}
+var _ common.Command = TTSCommand{}
 
 func (TTSCommand) CommandData() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
@@ -78,11 +78,11 @@ func (TTSCommand) CommandData() (discordgo.ApplicationCommand, error) {
 						Value: 2,
 					},
 					{
-						Name: "slowed",
+						Name:  "slowed",
 						Value: 3,
 					},
 					{
-						Name: "sped_up",
+						Name:  "sped_up",
 						Value: 4,
 					},
 				},
@@ -91,7 +91,7 @@ func (TTSCommand) CommandData() (discordgo.ApplicationCommand, error) {
 	}, nil
 }
 
-func (TTSCommand) Execute(proxy bacotell.ExecuteProxy) error {
+func (TTSCommand) Execute(proxy common.ExecuteProxy) error {
 	proxy.Defer(true)
 	text, err := proxy.StringOption("text")
 	if err != nil {
@@ -110,7 +110,7 @@ func (TTSCommand) Execute(proxy bacotell.ExecuteProxy) error {
 		logger.Info("Error opening file", "err", err)
 	}
 	defer fileToSend.Close()
-	proxy.Followup(bacotell.Response{
+	proxy.Followup(common.Response{
 		Content: text + " in " + lang,
 		Files: []*discordgo.File{
 			{
@@ -158,7 +158,7 @@ func Mix(filename string, effect int64) string {
 			buffer.Data[i] /= 2
 			buffer.Data[i] += rand.Intn(100) - 50
 		}
-	case 3:	// slowed
+	case 3: // slowed
 		buffer.Format.SampleRate /= 2
 	case 4: // sped up
 		buffer.Format.SampleRate *= 2

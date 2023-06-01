@@ -6,8 +6,8 @@ import (
 	"image/png"
 	"os"
 
-	"github.com/EliasStar/BacoTell/pkg/bacotell"
-	"github.com/EliasStar/BacoTell/pkg/bacotell_util"
+	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
+	util "github.com/EliasStar/BacoTell/pkg/bacotell_util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -22,7 +22,7 @@ var (
 
 type ConnectFourCommand struct{}
 
-var _ bacotell.Command = ConnectFourCommand{}
+var _ common.Command = ConnectFourCommand{}
 
 func (ConnectFourCommand) CommandData() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
@@ -57,7 +57,7 @@ func (ConnectFourCommand) CommandData() (discordgo.ApplicationCommand, error) {
 				Name:        "red",
 				Description: "Red value",
 				Required:    true,
-				MinValue:    bacotell_util.Ptr(0.0),
+				MinValue:    util.Ptr(0.0),
 				MaxValue:    255,
 			},
 			{
@@ -65,7 +65,7 @@ func (ConnectFourCommand) CommandData() (discordgo.ApplicationCommand, error) {
 				Name:        "green",
 				Description: "Green value",
 				Required:    true,
-				MinValue:    bacotell_util.Ptr(0.0),
+				MinValue:    util.Ptr(0.0),
 				MaxValue:    255,
 			},
 			{
@@ -73,7 +73,7 @@ func (ConnectFourCommand) CommandData() (discordgo.ApplicationCommand, error) {
 				Name:        "blue",
 				Description: "Blue value",
 				Required:    true,
-				MinValue:    bacotell_util.Ptr(0.0),
+				MinValue:    util.Ptr(0.0),
 				MaxValue:    255,
 			},
 			{
@@ -81,14 +81,14 @@ func (ConnectFourCommand) CommandData() (discordgo.ApplicationCommand, error) {
 				Name:        "alpha",
 				Description: "Alpha value",
 				Required:    true,
-				MinValue:    bacotell_util.Ptr(0.0),
+				MinValue:    util.Ptr(0.0),
 				MaxValue:    255,
 			},
 		},
 	}, nil
 }
 
-func (ConnectFourCommand) Execute(proxy bacotell.ExecuteProxy) error {
+func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 	proxy.Defer(true)
 	file, err := os.CreateTemp(os.TempDir(), "*.png")
 	if err != nil {
@@ -126,7 +126,7 @@ func (ConnectFourCommand) Execute(proxy bacotell.ExecuteProxy) error {
 		logger.Info("Error opening file", "err", err)
 	}
 	defer fileToSend.Close()
-	proxy.Followup(bacotell.Response{
+	proxy.Followup(common.Response{
 		Files: []*discordgo.File{
 			{
 				Name:   "image.png",

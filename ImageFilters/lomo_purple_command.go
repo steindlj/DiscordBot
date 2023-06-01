@@ -2,22 +2,22 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"net/http"
-	"path/filepath"
 	"image"
 	"image/color"
 	"image/jpeg"
+	"io"
+	"net/http"
 	"os"
+	"path/filepath"
 
-	"github.com/EliasStar/BacoTell/pkg/bacotell"
+	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
 	"github.com/PerformLine/go-stockutil/colorutil"
 	"github.com/bwmarrin/discordgo"
 )
 
 type LomoPurpleCommand struct{}
 
-var _ bacotell.Command = LomoPurpleCommand{}
+var _ common.Command = LomoPurpleCommand{}
 
 // CommandData implements provider.Command
 func (LomoPurpleCommand) CommandData() (discordgo.ApplicationCommand, error) {
@@ -37,7 +37,7 @@ func (LomoPurpleCommand) CommandData() (discordgo.ApplicationCommand, error) {
 }
 
 // Execute implements provider.Command
-func (LomoPurpleCommand) Execute(proxy bacotell.ExecuteProxy) error {
+func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
 	proxy.Defer(true)
 
 	img, err := proxy.AttachmentOption("attachment")
@@ -53,14 +53,14 @@ func (LomoPurpleCommand) Execute(proxy bacotell.ExecuteProxy) error {
 	}
 	grid := load(path)
 	newPath := save(tempDir, img.Filename, filter(grid))
-	
+
 	sendImg, err := os.Open(newPath)
 	if err != nil {
 		return fmt.Errorf("failed to open new image: ", err)
 	}
 	defer sendImg.Close()
 
-	proxy.Followup(bacotell.Response{
+	proxy.Followup(common.Response{
 		Content: url,
 		Files: []*discordgo.File{
 			{
@@ -145,11 +145,11 @@ func filter(grid [][]color.Color) (irImage [][]color.Color) {
 }
 
 func downloadImage(url string, directory string) (string, error) {
-	err:= os.MkdirAll(directory, os.ModePerm)
+	err := os.MkdirAll(directory, os.ModePerm)
 	if err != nil {
 		return "", fmt.Errorf("failed to create directory: ", err)
 	}
-	
+
 	fileName := filepath.Base(url)
 	filePath := filepath.Join(directory, fileName)
 
@@ -171,7 +171,7 @@ func downloadImage(url string, directory string) (string, error) {
 
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-		return "", fmt.Errorf("failed to write file: ",err)
+		return "", fmt.Errorf("failed to write file: ", err)
 	}
 
 	return filePath, nil
@@ -180,7 +180,7 @@ func downloadImage(url string, directory string) (string, error) {
 func deleteDir(directory string) error {
 	err := os.RemoveAll(directory)
 	if err != nil {
-		return fmt.Errorf("Failed to delete directory: ",err)
+		return fmt.Errorf("Failed to delete directory: ", err)
 	}
 	return nil
 }
