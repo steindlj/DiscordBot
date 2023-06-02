@@ -22,11 +22,6 @@ var (
 
 type ConnectFourCommand struct{}
 
-// Autocomplete implements bacotell_common.Command.
-func (ConnectFourCommand) Autocomplete(common.AutocompleteProxy) error {
-	panic("unimplemented")
-}
-
 var _ common.Command = ConnectFourCommand{}
 
 func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
@@ -94,7 +89,7 @@ func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 }
 
 func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
-	
+
 	proxy.Defer(false)
 	file, err := os.CreateTemp(os.TempDir(), "*.png")
 	if err != nil {
@@ -132,7 +127,7 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 		logger.Info("Error opening file", "err", err)
 	}
 	defer fileToSend.Close()
-	err = proxy.Edit("",common.Response{
+	err = proxy.Edit("", common.Response{
 		Files: []*discordgo.File{
 			{
 				Name:   "image.png",
@@ -144,8 +139,8 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 				Components: []discordgo.MessageComponent{
 					discordgo.Button{
 						CustomID: "a",
-						Style: discordgo.DangerButton,
-						Label: "tst",
+						Style:    discordgo.DangerButton,
+						Label:    "tst",
 					},
 				},
 			},
@@ -175,21 +170,26 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 	return nil
 }
 
-func generateSelectMenu() discordgo.SelectMenu{
+// Autocomplete implements bacotell_common.Command.
+func (ConnectFourCommand) Autocomplete(common.AutocompleteProxy) error {
+	panic("unimplemented")
+}
+
+func generateSelectMenu() discordgo.SelectMenu {
 	var options []discordgo.SelectMenuOption
 	for i := 0; i < 7; i++ {
 		for j := 5; j >= 0; j-- {
 			if grid[j][i] == 0 {
-				options = append(options, 
-				discordgo.SelectMenuOption{
-					Label: "row " + string(i),
-					Value: string(i),
-				})
+				options = append(options,
+					discordgo.SelectMenuOption{
+						Label: "row " + string(i),
+						Value: string(i),
+					})
 			}
 		}
 	}
 
-
+	return discordgo.SelectMenu{}
 }
 
 func setChip(player, col int) {

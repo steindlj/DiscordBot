@@ -19,7 +19,7 @@ type TTSCommand struct{}
 
 var _ common.Command = TTSCommand{}
 
-func (TTSCommand) CommandData() (discordgo.ApplicationCommand, error) {
+func (TTSCommand) Data() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
 		Type:        discordgo.ChatApplicationCommand,
 		Name:        "tts",
@@ -120,6 +120,11 @@ func (TTSCommand) Execute(proxy common.ExecuteProxy) error {
 		},
 	}, false)
 	return nil
+}
+
+// Autocomplete implements bacotell_common.Command.
+func (TTSCommand) Autocomplete(common.AutocompleteProxy) error {
+	panic("unimplemented")
 }
 
 func CreateFile(text string, lang string) string {

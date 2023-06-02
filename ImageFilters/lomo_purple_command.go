@@ -20,7 +20,7 @@ type LomoPurpleCommand struct{}
 var _ common.Command = LomoPurpleCommand{}
 
 // CommandData implements provider.Command
-func (LomoPurpleCommand) CommandData() (discordgo.ApplicationCommand, error) {
+func (LomoPurpleCommand) Data() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
 		Type:        discordgo.ChatApplicationCommand,
 		Name:        "lomo_filter",
@@ -51,7 +51,7 @@ func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
 	if err != nil {
 		return fmt.Errorf("failed to download image: %w", err)
 	}
-	grid,_ := load(path)
+	grid, _ := load(path)
 	newPath := save(tempDir, img.Filename, filter(grid))
 
 	sendImg, err := os.Open(newPath)
@@ -81,7 +81,7 @@ func load(filePath string) ([][]color.Color, error) {
 
 	img, _, err := image.Decode(imgFile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode image: %w",err)
+		return nil, fmt.Errorf("failed to decode image: %w", err)
 	}
 
 	bounds := img.Bounds()
@@ -95,6 +95,11 @@ func load(filePath string) ([][]color.Color, error) {
 		}
 	}
 	return imgArray, nil
+}
+
+// Autocomplete implements bacotell_common.Command.
+func (LomoPurpleCommand) Autocomplete(common.AutocompleteProxy) error {
+	panic("unimplemented")
 }
 
 func save(directory string, fileName string, grid [][]color.Color) string {
@@ -172,7 +177,7 @@ func downloadImage(url string, directory string) (string, error) {
 
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-		return "", fmt.Errorf("failed to write file: %w",err)
+		return "", fmt.Errorf("failed to write file: %w", err)
 	}
 
 	return filePath, nil
@@ -181,7 +186,7 @@ func downloadImage(url string, directory string) (string, error) {
 func deleteDir(directory string) error {
 	err := os.RemoveAll(directory)
 	if err != nil {
-		return fmt.Errorf("failed to delete directory: %w",err)
+		return fmt.Errorf("failed to delete directory: %w", err)
 	}
 	return nil
 }
