@@ -173,11 +173,7 @@ func downloadImage(url string, directory string) (string, error) {
 
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-<<<<<<< HEAD
-		return "", fmt.Errorf("failed to write file: ", err)
-=======
 		return "", fmt.Errorf("failed to write file: %w",err)
->>>>>>> 08e6e19 (add to error)
 	}
 
 	return filePath, nil
@@ -186,11 +182,7 @@ func downloadImage(url string, directory string) (string, error) {
 func deleteDir(directory string) error {
 	err := os.RemoveAll(directory)
 	if err != nil {
-<<<<<<< HEAD
-		return fmt.Errorf("Failed to delete directory: ", err)
-=======
 		return fmt.Errorf("failed to delete directory: %w",err)
->>>>>>> 08e6e19 (add to error)
 	}
 	return nil
 }
