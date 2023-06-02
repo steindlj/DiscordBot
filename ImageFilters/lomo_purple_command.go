@@ -61,7 +61,6 @@ func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
 	defer sendImg.Close()
 
 	proxy.Followup(common.Response{
-		Content: url,
 		Files: []*discordgo.File{
 			{
 				Name:   img.Filename,
