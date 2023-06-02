@@ -42,21 +42,21 @@ func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
 
 	img, err := proxy.AttachmentOption("attachment")
 	if err != nil {
-		return fmt.Errorf("failed to retrieve attachment: ", err)
+		return fmt.Errorf("failed to retrieve attachment: %w", err)
 	}
 
 	url := img.URL
 	tempDir := "temp"
 	path, err := downloadImage(url, tempDir)
 	if err != nil {
-		return fmt.Errorf("failed to download image: ", err)
+		return fmt.Errorf("failed to download image: %w", err)
 	}
-	grid := load(path)
+	grid,_ := load(path)
 	newPath := save(tempDir, img.Filename, filter(grid))
 
 	sendImg, err := os.Open(newPath)
 	if err != nil {
-		return fmt.Errorf("failed to open new image: ", err)
+		return fmt.Errorf("failed to open new image: %w", err)
 	}
 	defer sendImg.Close()
 
@@ -73,27 +73,29 @@ func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
 	return nil
 }
 
-func load(filePath string) (grid [][]color.Color) {
+func load(filePath string) ([][]color.Color, error) {
 	imgFile, err := os.Open(filePath)
 	if err != nil {
-		logger.Info("Cannot read file:", "err", err)
+		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
 	defer imgFile.Close()
 
 	img, _, err := image.Decode(imgFile)
 	if err != nil {
-		logger.Info("Cannot decode file:", "err", err)
+		return nil, fmt.Errorf("failed to decode image: %w",err)
 	}
 
-	size := img.Bounds().Size()
-	for i := 0; i < size.X; i++ {
-		var y []color.Color
-		for j := 0; j < size.Y; j++ {
-			y = append(y, img.At(i, j))
+	bounds := img.Bounds()
+	xlen, ylen := bounds.Max.X, bounds.Max.Y
+
+	imgArray := make([][]color.Color, xlen)
+	for x := 0; x < xlen; x++ {
+		imgArray[x] = make([]color.Color, ylen)
+		for y := 0; y < ylen; y++ {
+			imgArray[x][y] = img.At(x, y)
 		}
-		grid = append(grid, y)
 	}
-	return
+	return imgArray, nil
 }
 
 func save(directory string, fileName string, grid [][]color.Color) string {
@@ -147,7 +149,7 @@ func filter(grid [][]color.Color) (irImage [][]color.Color) {
 func downloadImage(url string, directory string) (string, error) {
 	err := os.MkdirAll(directory, os.ModePerm)
 	if err != nil {
-		return "", fmt.Errorf("failed to create directory: ", err)
+		return "", fmt.Errorf("failed to create directory: %w", err)
 	}
 
 	fileName := filepath.Base(url)
@@ -155,13 +157,13 @@ func downloadImage(url string, directory string) (string, error) {
 
 	file, err := os.Create(filePath)
 	if err != nil {
-		return "", fmt.Errorf("failed to create file: ", err)
+		return "", fmt.Errorf("failed to create file: %w", err)
 	}
 	defer file.Close()
 
 	response, err := http.Get(url)
 	if err != nil {
-		return "", fmt.Errorf("failed to perform HTTP GET request: ", err)
+		return "", fmt.Errorf("failed to perform HTTP GET request: %w", err)
 	}
 	defer response.Body.Close()
 
@@ -171,7 +173,11 @@ func downloadImage(url string, directory string) (string, error) {
 
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
+<<<<<<< HEAD
 		return "", fmt.Errorf("failed to write file: ", err)
+=======
+		return "", fmt.Errorf("failed to write file: %w",err)
+>>>>>>> 08e6e19 (add to error)
 	}
 
 	return filePath, nil
@@ -180,7 +186,11 @@ func downloadImage(url string, directory string) (string, error) {
 func deleteDir(directory string) error {
 	err := os.RemoveAll(directory)
 	if err != nil {
+<<<<<<< HEAD
 		return fmt.Errorf("Failed to delete directory: ", err)
+=======
+		return fmt.Errorf("failed to delete directory: %w",err)
+>>>>>>> 08e6e19 (add to error)
 	}
 	return nil
 }
