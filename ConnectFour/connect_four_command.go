@@ -22,9 +22,14 @@ var (
 
 type ConnectFourCommand struct{}
 
+// Autocomplete implements bacotell_common.Command.
+func (ConnectFourCommand) Autocomplete(common.AutocompleteProxy) error {
+	panic("unimplemented")
+}
+
 var _ common.Command = ConnectFourCommand{}
 
-func (ConnectFourCommand) CommandData() (discordgo.ApplicationCommand, error) {
+func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
 		Type:        discordgo.ChatApplicationCommand,
 		Name:        "connectfour",
@@ -89,7 +94,8 @@ func (ConnectFourCommand) CommandData() (discordgo.ApplicationCommand, error) {
 }
 
 func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
-	proxy.Defer(true)
+	
+	proxy.Defer(false)
 	file, err := os.CreateTemp(os.TempDir(), "*.png")
 	if err != nil {
 		logger.Info("Error creating temp png", "err", err)
@@ -126,15 +132,53 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 		logger.Info("Error opening file", "err", err)
 	}
 	defer fileToSend.Close()
-	proxy.Followup(common.Response{
+	err = proxy.Edit("",common.Response{
 		Files: []*discordgo.File{
 			{
 				Name:   "image.png",
 				Reader: fileToSend,
 			},
 		},
-	}, false)
+		Components: []discordgo.MessageComponent{
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.Button{
+						CustomID: "a",
+						Style: discordgo.DangerButton,
+						Label: "tst",
+					},
+				},
+			},
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.SelectMenu{
+						CustomID: "t",
+						MenuType: discordgo.StringSelectMenu,
+						Options: []discordgo.SelectMenuOption{
+							{
+								Label: "a",
+								Value: "a",
+							},
+							{
+								Label: "b",
+								Value: "b",
+							},
+						},
+					},
+				},
+			},
+		},
+	})
+	if err != nil {
+		logger.Info("", "err", err)
+	}
 	return nil
+}
+
+func generateSelectMenu() discordgo.SelectMenu{
+	options discordgo.SelectMenuOption := {}
+
+
 }
 
 func setChip(player, col int) {

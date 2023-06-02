@@ -16,8 +16,8 @@ var commands = []common.Command{
 var components = []common.Component{}
 
 func main() {
-	plugin.SetApplicationCommands(commands)
-	plugin.SetMessageComponents(components)
+	plugin.SetApplicationCommands(commands...)
+	plugin.SetMessageComponents(components...)
 
 	logger, closeChan, _ = plugin.Debug("connect_four", "MTA4OTk3MjA5MTE0MDQ0NDIwMA.GD1PSP.3i4VfMmnHuPjenyFgUUxkpDoJqw_zC_pW1sMsQ")
 	<-closeChan
