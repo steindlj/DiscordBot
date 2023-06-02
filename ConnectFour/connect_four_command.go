@@ -176,7 +176,18 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 }
 
 func generateSelectMenu() discordgo.SelectMenu{
-	options discordgo.SelectMenuOption := {}
+	var options []discordgo.SelectMenuOption
+	for i := 0; i < 7; i++ {
+		for j := 5; j >= 0; j-- {
+			if grid[j][i] == 0 {
+				options = append(options, 
+				discordgo.SelectMenuOption{
+					Label: "row " + string(i),
+					Value: string(i),
+				})
+			}
+		}
+	}
 
 
 }
