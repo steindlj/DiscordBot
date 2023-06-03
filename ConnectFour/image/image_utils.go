@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"image/png"
 	"os"
+
 	"github.com/steindlj/dc-plugins/ConnectFour/game"
 )
 
@@ -14,14 +15,14 @@ var (
 	Background color.RGBA
 	ColorP1    = color.RGBA{255, 0, 0, 255}
 	ColorP2    = color.RGBA{255, 255, 0, 255}
-	img = image.NewRGBA(image.Rect(0, 0, 7*width+8*space, 6*width+7*space))
+	img        = image.NewRGBA(image.Rect(0, 0, 7*width+8*space, 6*width+7*space))
 )
 
 func GenerateImg(file *os.File) {
 	png.Encode(file, img)
-} 
+}
 
-func Init() {
+func ColorBackground() {
 	for i := 0; i < 7*width+8*space; i++ {
 		for j := 0; j < 6*width+7*space; j++ {
 			img.Set(i, j, Background)
@@ -37,7 +38,7 @@ func Init() {
 func ColorField(row, col int) {
 	x := (col+1)*space + col*width
 	y := (row+1)*space + row*width
-	color := color.RGBA{Background.R, Background.G, Background.B, 230}
+	color := color.RGBA{Background.R, Background.G, Background.B, uint8(float64(Background.A) * 0.9)}
 	if game.Grid[row][col] != 0 {
 		if game.Grid[row][col] == 1 {
 			color = ColorP1

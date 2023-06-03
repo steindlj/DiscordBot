@@ -13,7 +13,8 @@ import (
 var Proxy common.InteractionProxy
 
 func NewMessage() error {
-	return Proxy.Edit("", common.Response{
+	Proxy.Delete("")
+	_, err := Proxy.Followup(common.Response{
 		Files: []*discordgo.File{
 			{
 				Name:   "image.png",
@@ -26,19 +27,31 @@ func NewMessage() error {
 					generateSelectMenu(),
 				},
 			},
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.Button{
+						CustomID: "btn",
+						Label: "Random color",
+						Style: discordgo.SuccessButton,
+					},
+				},
+			},
 		},
-	})
+	}, true)
+	return err
 }
 
 func WinMessage() error {
-	return Proxy.Edit("", common.Response{
+	Proxy.Delete("")
+	_, err := Proxy.Followup(common.Response{
 		Files: []*discordgo.File{
 			{
 				Name:   "image.png",
 				Reader: newFile(),
 			},
 		},
-	}) 
+	}, true) 
+	return err
 }
 
 func newFile() *os.File {

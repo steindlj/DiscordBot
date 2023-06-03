@@ -1,4 +1,4 @@
-package main
+package component
 
 import (
 	"strconv"
@@ -10,17 +10,17 @@ import (
 	"github.com/steindlj/dc-plugins/ConnectFour/message"
 )
 
-type ConnectFourComponent struct{}
+type ConnectFourSelectMenu struct{}
 
-var _ common.Component = ConnectFourComponent{}
+var _ common.Component = ConnectFourSelectMenu{}
 
 // CustomID implements bacotell_common.Component.
-func (ConnectFourComponent) CustomID() (string, error) {
+func (ConnectFourSelectMenu) CustomID() (string, error) {
 	return "colsm", nil
 }
 
 // Handle implements bacotell_common.Component.
-func (ConnectFourComponent) Handle(proxy common.HandleProxy) error {
+func (ConnectFourSelectMenu) Handle(proxy common.HandleProxy) error {
 	proxy.Defer(true)
 	message.Proxy = proxy
 	member, err := proxy.Member()
@@ -28,7 +28,7 @@ func (ConnectFourComponent) Handle(proxy common.HandleProxy) error {
 		message.ErrorEdit(err)
 	}
 	userId := member.User.ID
-	if !strings.EqualFold(userId, Player1Id) && !strings.EqualFold(userId, Player2Id) {
+	if !strings.EqualFold(userId, game.Player1Id) && !strings.EqualFold(userId, game.Player2Id) {
 		message.ErrorEdit(err)
 	}
 	colString, err := proxy.SelectedValues()
@@ -39,10 +39,9 @@ func (ConnectFourComponent) Handle(proxy common.HandleProxy) error {
 	if err != nil {
 		message.ErrorEdit(err)
 	}
-	image.ColorField(game.SetChip(userId, col))
+	image.ColorField(game.SetChip(col))
 	if game.CheckWin() {
 		return message.WinMessage()
 	}
 	return message.NewMessage()
 }
-

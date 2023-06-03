@@ -4,7 +4,12 @@ import (
 	"strings"
 )
 
-var Grid [6][7]int
+var (
+	Player1Id string
+	Player2Id string
+	Grid [6][7]int
+	CurrPlayer string
+)
 
 func CheckWin() bool {
 	return checkRows() || checkCols() || checkDiagonalsLeft() || checkDiagonalsRight()
@@ -88,14 +93,14 @@ func fromUpperRight(i, j int) bool {
 	return false
 }
 
-func SetChip(player string, col int) (r, c int){
+func SetChip(col int) (r, c int){
 	var val int
-	if strings.EqualFold(player, "249553273621708812") {
+	if strings.EqualFold(CurrPlayer, Player1Id) {
 		val = 1;
 	} else {
 		val = 2;
 	}
-	for i := 5; i >= 0; i++ {
+	for i := 5; i >= 0; i-- {
 		if Grid[i][col] == 0 {
 		 	Grid[i][col] = val
 			 return i, col

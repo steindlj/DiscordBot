@@ -1,4 +1,4 @@
-package main
+package command
 
 import (
 	"image/color"
@@ -6,13 +6,9 @@ import (
 	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
 	util "github.com/EliasStar/BacoTell/pkg/bacotell_util"
 	"github.com/bwmarrin/discordgo"
+	"github.com/steindlj/dc-plugins/ConnectFour/game"
 	"github.com/steindlj/dc-plugins/ConnectFour/image"
 	"github.com/steindlj/dc-plugins/ConnectFour/message"
-)
-
-var (
-	Player1Id string
-	Player2Id string
 )
 
 type ConnectFourCommand struct{}
@@ -91,12 +87,12 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 	if err != nil {
 		message.ErrorEdit(err)
 	}
-	Player1Id = player1.User.ID
+	game.Player1Id = player1.User.ID
 	player2, err := proxy.UserOption("opponent")
 	if err != nil {
 		message.ErrorEdit(err)
 	}
-	Player2Id = player2.ID
+	game.Player2Id = player2.ID
 	chipColor, err := proxy.IntegerOption("chip_color")
 	if err != nil {
 		message.ErrorEdit(err)
@@ -118,7 +114,7 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 		message.ErrorEdit(err)
 	}
 	image.Background = color.RGBA{uint8(red), uint8(green), uint8(blue), uint8(alpha)}
-	image.Init()
+	image.ColorBackground()
 	if chipColor != 0 {
 		image.ColorP1 = color.RGBA{255, 255, 0, 255}
 		image.ColorP2 = color.RGBA{255, 0, 0, 255}
