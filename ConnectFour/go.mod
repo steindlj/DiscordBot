@@ -3,7 +3,7 @@ module github.com/steindlj/dc-plugins/ConnectFour
 go 1.20
 
 require (
-	github.com/EliasStar/BacoTell v0.0.0-20230602182613-98db6b5db39a
+	github.com/EliasStar/BacoTell v0.1.0
 	github.com/bwmarrin/discordgo v0.27.1
 	github.com/hashicorp/go-hclog v1.5.0
 )
