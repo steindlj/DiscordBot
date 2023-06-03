@@ -21,7 +21,7 @@ func (ConnectFourSelectMenu) CustomID() (string, error) {
 
 // Handle implements bacotell_common.Component.
 func (ConnectFourSelectMenu) Handle(proxy common.HandleProxy) error {
-	proxy.Defer(true)
+	proxy.Defer(false)
 	message.Proxy = proxy
 	member, err := proxy.Member()
 	if err != nil {

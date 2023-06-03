@@ -80,7 +80,7 @@ func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 }
 
 func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
-	proxy.Defer(true)
+	proxy.Defer(false)
 	message.Proxy = proxy
 	player1, err := proxy.Member()
 	if err != nil {
