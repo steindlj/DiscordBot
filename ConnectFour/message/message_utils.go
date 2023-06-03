@@ -37,7 +37,7 @@ func NewMessage() error {
 				},
 			},
 		},
-	}, true)
+	}, false)
 	return err
 }
 
@@ -50,7 +50,7 @@ func WinMessage() error {
 				Reader: newFile(),
 			},
 		},
-	}, true) 
+	}, false) 
 	return err
 }
 

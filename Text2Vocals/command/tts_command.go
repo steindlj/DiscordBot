@@ -87,7 +87,8 @@ func (TTSCommand) Data() (discordgo.ApplicationCommand, error) {
 }
 
 func (TTSCommand) Execute(proxy common.ExecuteProxy) error {
-	proxy.Defer(true)
+	proxy.Defer(false)
+	message.Proxy = proxy
 	text, err := proxy.StringOption("text")
 	if err != nil {
 		message.ErrorEdit(err)
@@ -105,7 +106,7 @@ func (TTSCommand) Execute(proxy common.ExecuteProxy) error {
 		message.ErrorEdit(err)
 	}
 	defer fileToSend.Close()
-	proxy.Followup(common.Response{
+	return proxy.Edit("", common.Response{
 		Content: text + " in " + lang,
 		Files: []*discordgo.File{
 			{
@@ -113,8 +114,7 @@ func (TTSCommand) Execute(proxy common.ExecuteProxy) error {
 				Reader: fileToSend,
 			},
 		},
-	}, false)
-	return nil
+	})
 }
 
 // Autocomplete implements bacotell_common.Command.

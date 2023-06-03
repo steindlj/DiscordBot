@@ -118,6 +118,7 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 		image.ColorP1 = color.RGBA{255, 255, 0, 255}
 		image.ColorP2 = color.RGBA{255, 0, 0, 255}
 	}
+	game.CurrPlayer = player1.User.ID
 	return message.NewMessage()
 }
 
