@@ -18,6 +18,7 @@ var (
 type ConnectFourCommand struct{}
 
 var _ common.Command = ConnectFourCommand{}
+var Proxy common.ExecuteProxy
 
 func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
@@ -85,42 +86,44 @@ func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 
 func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 	proxy.Defer(true)
+	message.Proxy = proxy
 	player1, err := proxy.Member()
 	if err != nil {
-		message.ErrorEdit(proxy, err)
+		message.ErrorEdit(err)
 	}
 	Player1Id = player1.User.ID
 	player2, err := proxy.UserOption("opponent")
 	if err != nil {
-		message.ErrorEdit(proxy, err)
+		message.ErrorEdit(err)
 	}
 	Player2Id = player2.ID
 	chipColor, err := proxy.IntegerOption("chip_color")
 	if err != nil {
-		message.ErrorEdit(proxy, err)
+		message.ErrorEdit(err)
 	}
 	red, err := proxy.IntegerOption("red")
 	if err != nil {
-		message.ErrorEdit(proxy, err)
+		message.ErrorEdit(err)
 	}
 	green, err := proxy.IntegerOption("green")
 	if err != nil {
-		message.ErrorEdit(proxy, err)
+		message.ErrorEdit(err)
 	}
 	blue, err := proxy.IntegerOption("blue")
 	if err != nil {
-		message.ErrorEdit(proxy, err)
+		message.ErrorEdit(err)
 	}
 	alpha, err := proxy.IntegerOption("alpha")
 	if err != nil {
-		message.ErrorEdit(proxy, err)
+		message.ErrorEdit(err)
 	}
 	image.Background = color.RGBA{uint8(red), uint8(green), uint8(blue), uint8(alpha)}
+	image.Init()
 	if chipColor != 0 {
 		image.ColorP1 = color.RGBA{255, 255, 0, 255}
 		image.ColorP2 = color.RGBA{255, 0, 0, 255}
 	}
-	return message.NewMessage(proxy)
+	return message.NewMessage()
 }
 
 // Autocomplete implements bacotell_common.Command.

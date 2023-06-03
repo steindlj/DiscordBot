@@ -6,6 +6,7 @@ import (
 
 	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
 	"github.com/steindlj/dc-plugins/ConnectFour/game"
+	"github.com/steindlj/dc-plugins/ConnectFour/image"
 	"github.com/steindlj/dc-plugins/ConnectFour/message"
 )
 
@@ -20,26 +21,28 @@ func (ConnectFourComponent) CustomID() (string, error) {
 
 // Handle implements bacotell_common.Component.
 func (ConnectFourComponent) Handle(proxy common.HandleProxy) error {
+	proxy.Defer(true)
+	message.Proxy = proxy
 	member, err := proxy.Member()
 	if err != nil {
-		message.ErrorRespond(proxy, err, true)
+		message.ErrorEdit(err)
 	}
 	userId := member.User.ID
 	if !strings.EqualFold(userId, Player1Id) && !strings.EqualFold(userId, Player2Id) {
-		message.ErrorRespond(proxy, err, true)
+		message.ErrorEdit(err)
 	}
 	colString, err := proxy.SelectedValues()
 	if err != nil {
-		message.ErrorRespond(proxy, err, true)
+		message.ErrorEdit(err)
 	}
 	col, err := strconv.Atoi(colString[0])
 	if err != nil {
-		message.ErrorRespond(proxy, err, true)
+		message.ErrorEdit(err)
 	}
-	game.SetChip(userId, col)
+	image.ColorField(game.SetChip(userId, col))
 	if game.CheckWin() {
-		return message.WinMessage(proxy)
+		return message.WinMessage()
 	}
-	return message.NewMessage(proxy)
+	return message.NewMessage()
 }
 

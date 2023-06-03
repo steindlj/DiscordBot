@@ -159,8 +159,7 @@ func Mix(filename string, effect int64) string {
 		}
 	case 2: // "vintage"
 		for i := range buffer.Data {
-			buffer.Data[i] = int(float64(buffer.Data[i]) * 0.9)
-			buffer.Data[i] /= 2
+			buffer.Data[i] = int(float64(buffer.Data[i]) * 0.8)
 			buffer.Data[i] += rand.Intn(100) - 50
 		}
 	case 3: // slowed

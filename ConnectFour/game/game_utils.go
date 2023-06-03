@@ -88,7 +88,7 @@ func fromUpperRight(i, j int) bool {
 	return false
 }
 
-func SetChip(player string, col int) {
+func SetChip(player string, col int) (r, c int){
 	var val int
 	if strings.EqualFold(player, "249553273621708812") {
 		val = 1;
@@ -98,7 +98,8 @@ func SetChip(player string, col int) {
 	for i := 5; i >= 0; i++ {
 		if Grid[i][col] == 0 {
 		 	Grid[i][col] = val
-			return
+			 return i, col
 		}
 	}
+	return 
 }

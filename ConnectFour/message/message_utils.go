@@ -3,20 +3,21 @@ package message
 import (
 	"os"
 	"strconv"
+
 	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
 	"github.com/bwmarrin/discordgo"
 	"github.com/steindlj/dc-plugins/ConnectFour/game"
 	"github.com/steindlj/dc-plugins/ConnectFour/image"
-
-
 )
 
-func NewMessage(proxy common.InteractionProxy) error {
-	return proxy.Edit("", common.Response{
+var Proxy common.InteractionProxy
+
+func NewMessage() error {
+	return Proxy.Edit("", common.Response{
 		Files: []*discordgo.File{
 			{
 				Name:   "image.png",
-				Reader: newFile(proxy),
+				Reader: newFile(),
 			},
 		},
 		Components: []discordgo.MessageComponent{
@@ -29,32 +30,32 @@ func NewMessage(proxy common.InteractionProxy) error {
 	})
 }
 
-func WinMessage(proxy common.InteractionProxy) error {
-	return proxy.Edit("", common.Response{
+func WinMessage() error {
+	return Proxy.Edit("", common.Response{
 		Files: []*discordgo.File{
 			{
 				Name:   "image.png",
-				Reader: newFile(proxy),
+				Reader: newFile(),
 			},
 		},
 	}) 
 }
 
-func newFile(proxy common.InteractionProxy) *os.File {
+func newFile() *os.File {
 	file, err := os.CreateTemp(os.TempDir(), "*.png")
 	if err != nil {
-		ErrorEdit(proxy, err)
+		ErrorEdit(err)
 	}
 	image.GenerateImg(file)
 	sendFile, err := os.Open(file.Name())
 	if err != nil {
-		ErrorEdit(proxy, err)
+		ErrorEdit(err)
 	}
 	return sendFile
 }
 
-func ErrorEdit(proxy common.InteractionProxy, error error) {
-	proxy.Edit("", common.Response{
+func ErrorEdit(error error) {
+	Proxy.Edit("", common.Response{
 		Content: error.Error(),
 	})
 }
@@ -80,7 +81,7 @@ func generateSelectMenu() discordgo.SelectMenu {
 		}
 	}
 	return discordgo.SelectMenu{
-		CustomID: "connect_four-colsm",
+		CustomID: "colsm",
 		MenuType: discordgo.StringSelectMenu,
 		Options: options,
 	}

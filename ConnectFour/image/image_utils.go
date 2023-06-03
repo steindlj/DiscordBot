@@ -14,10 +14,14 @@ var (
 	Background color.RGBA
 	ColorP1    = color.RGBA{255, 0, 0, 255}
 	ColorP2    = color.RGBA{255, 255, 0, 255}
+	img = image.NewRGBA(image.Rect(0, 0, 7*width+8*space, 6*width+7*space))
 )
 
 func GenerateImg(file *os.File) {
-	img := image.NewRGBA(image.Rect(0, 0, 7*width+8*space, 6*width+7*space))
+	png.Encode(file, img)
+} 
+
+func Init() {
 	for i := 0; i < 7*width+8*space; i++ {
 		for j := 0; j < 6*width+7*space; j++ {
 			img.Set(i, j, Background)
@@ -25,26 +29,25 @@ func GenerateImg(file *os.File) {
 	}
 	for i := 0; i < 6; i++ {
 		for j := 0; j < 7; j++ {
-			ColorField(img, i, j)
+			ColorField(i, j)
 		}
 	}
-	png.Encode(file, img)
 }
 
-func ColorField(img *image.RGBA, i, j int) {
-	x := (j+1)*space + j*width
-	y := (i+1)*space + i*width
+func ColorField(row, col int) {
+	x := (col+1)*space + col*width
+	y := (row+1)*space + row*width
 	color := color.RGBA{Background.R, Background.G, Background.B, 230}
-	if game.Grid[i][j] != 0 {
-		if game.Grid[i][j] == 1 {
+	if game.Grid[row][col] != 0 {
+		if game.Grid[row][col] == 1 {
 			color = ColorP1
 		} else {
 			color = ColorP2
 		}
 	}
-	for i = 0; i < width; i++ {
-		for j = 0; j < width; j++ {
-			img.SetRGBA(x+i, y+j, color)
+	for row = 0; row < width; row++ {
+		for col = 0; col < width; col++ {
+			img.SetRGBA(x+row, y+col, color)
 		}
 	}
 }
