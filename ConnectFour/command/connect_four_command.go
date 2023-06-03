@@ -14,7 +14,6 @@ import (
 type ConnectFourCommand struct{}
 
 var _ common.Command = ConnectFourCommand{}
-var Proxy common.ExecuteProxy
 
 func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
