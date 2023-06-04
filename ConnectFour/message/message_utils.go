@@ -15,6 +15,7 @@ var Proxy common.InteractionProxy
 func NewMessage() error {
 	Proxy.Delete("")
 	_, err := Proxy.Followup(common.Response{
+		Content: game.Player1.Mention() + " vs. " + game.Player2.Mention(),
 		Files: []*discordgo.File{
 			{
 				Name:   "image.png",
@@ -31,8 +32,8 @@ func NewMessage() error {
 				Components: []discordgo.MessageComponent{
 					discordgo.Button{
 						CustomID: "btn",
-						Label: "Random color",
-						Style: discordgo.SuccessButton,
+						Label:    "Random color",
+						Style:    discordgo.SuccessButton,
 					},
 				},
 			},
@@ -44,13 +45,14 @@ func NewMessage() error {
 func WinMessage() error {
 	Proxy.Delete("")
 	_, err := Proxy.Followup(common.Response{
+		Content: game.CurrPlayer.Mention() + " won!",
 		Files: []*discordgo.File{
 			{
 				Name:   "image.png",
 				Reader: newFile(),
 			},
 		},
-	}, false) 
+	}, false)
 	return err
 }
 
@@ -89,14 +91,14 @@ func generateSelectMenu() discordgo.SelectMenu {
 						Label: "Column: " + strconv.Itoa(i+1),
 						Value: strconv.Itoa(i),
 					})
-				break;
+				break
 			}
 		}
 	}
 	return discordgo.SelectMenu{
 		CustomID: "colsm",
 		MenuType: discordgo.StringSelectMenu,
-		Options: options,
+		Options:  options,
 	}
 }
 
@@ -106,7 +108,7 @@ func emptyCols() []int {
 		for j := 5; j >= 0; j-- {
 			if game.Grid[j][i] == 0 {
 				cols = append(cols, i)
-				break;
+				break
 			}
 		}
 	}

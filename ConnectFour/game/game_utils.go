@@ -2,13 +2,15 @@ package game
 
 import (
 	"strings"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 var (
-	Player1Id string
-	Player2Id string
-	Grid [6][7]int
-	CurrPlayer string
+	Player1    *discordgo.User
+	Player2    *discordgo.User
+	CurrPlayer *discordgo.User
+	Grid       [6][7]int
 )
 
 func CheckWin() bool {
@@ -93,18 +95,20 @@ func fromUpperRight(i, j int) bool {
 	return false
 }
 
-func SetChip(col int) (r, c int){
+func SetChip(col int) (r, c int) {
 	var val int
-	if strings.EqualFold(CurrPlayer, Player1Id) {
-		val = 1;
+	if strings.EqualFold(CurrPlayer.ID, Player1.ID) {
+		val = 1
+		CurrPlayer = Player2
 	} else {
-		val = 2;
+		val = 2
+		CurrPlayer = Player1
 	}
 	for i := 5; i >= 0; i-- {
 		if Grid[i][col] == 0 {
-		 	Grid[i][col] = val
-			 return i, col
+			Grid[i][col] = val
+			return i, col
 		}
 	}
-	return 
+	return
 }

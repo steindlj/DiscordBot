@@ -86,12 +86,12 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 	if err != nil {
 		message.ErrorEdit(err)
 	}
-	game.Player1Id = player1.User.ID
+	game.Player1 = player1.User
 	player2, err := proxy.UserOption("opponent")
 	if err != nil {
 		message.ErrorEdit(err)
 	}
-	game.Player2Id = player2.ID
+	game.Player2 = player2
 	chipColor, err := proxy.IntegerOption("chip_color")
 	if err != nil {
 		message.ErrorEdit(err)
@@ -118,7 +118,7 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 		image.ColorP1 = color.RGBA{255, 255, 0, 255}
 		image.ColorP2 = color.RGBA{255, 0, 0, 255}
 	}
-	game.CurrPlayer = player1.User.ID
+	game.CurrPlayer = player1.User
 	return message.NewMessage()
 }
 

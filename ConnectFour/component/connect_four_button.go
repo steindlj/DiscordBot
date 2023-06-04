@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
+	"github.com/steindlj/dc-plugins/ConnectFour/game"
 	"github.com/steindlj/dc-plugins/ConnectFour/image"
 	"github.com/steindlj/dc-plugins/ConnectFour/message"
-	"github.com/steindlj/dc-plugins/ConnectFour/game"
 )
 
 type ConnectFourButton struct{}
@@ -29,7 +29,7 @@ func (ConnectFourButton) Handle(proxy common.HandleProxy) error {
 		message.ErrorEdit(err)
 	}
 	userId := member.User.ID
-	if !strings.EqualFold(userId, game.Player1Id) && !strings.EqualFold(userId, game.Player2Id) {
+	if !strings.EqualFold(userId, game.Player1.ID) && !strings.EqualFold(userId, game.Player2.ID) {
 		message.ErrorEdit(err)
 	}
 	red := uint8(rand.Intn(256))

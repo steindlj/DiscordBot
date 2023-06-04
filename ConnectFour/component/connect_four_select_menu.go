@@ -28,7 +28,7 @@ func (ConnectFourSelectMenu) Handle(proxy common.HandleProxy) error {
 		message.ErrorEdit(err)
 	}
 	userId := member.User.ID
-	if !strings.EqualFold(userId, game.Player1Id) && !strings.EqualFold(userId, game.Player2Id) {
+	if !strings.EqualFold(userId, game.Player1.ID) && !strings.EqualFold(userId, game.Player2.ID) {
 		message.ErrorEdit(err)
 	}
 	colString, err := proxy.SelectedValues()
