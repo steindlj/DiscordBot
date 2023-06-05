@@ -3,6 +3,7 @@ package message
 import (
 	"os"
 	"strconv"
+	"strings"
 
 	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
 	"github.com/bwmarrin/discordgo"
@@ -14,38 +15,27 @@ var Proxy common.InteractionProxy
 
 func NewMessage() error {
 	Proxy.Delete("")
-	_, err := Proxy.Followup(common.Response{
-		Content: game.Player1.Mention() + " vs. " + game.Player2.Mention(),
-		Files: []*discordgo.File{
-			{
-				Name:   "image.png",
-				Reader: newFile(),
-			},
-		},
-		Components: []discordgo.MessageComponent{
-			discordgo.ActionsRow{
-				Components: []discordgo.MessageComponent{
-					generateSelectMenu(),
-				},
-			},
-			discordgo.ActionsRow{
-				Components: []discordgo.MessageComponent{
-					discordgo.Button{
-						CustomID: "btn",
-						Label:    "Random color",
-						Style:    discordgo.SuccessButton,
-					},
-				},
-			},
-		},
-	}, false)
+	_, err := Proxy.Followup(Response(game.Player1.Mention()+" vs. "+game.Player2.Mention()), false)
 	return err
 }
 
 func WinMessage() error {
 	Proxy.Delete("")
+	var winner *discordgo.User
+	if strings.EqualFold(game.CurrPlayer.ID, game.Player1.ID) {
+		winner = game.Player2
+	} else {
+		winner = game.Player1
+	}
 	_, err := Proxy.Followup(common.Response{
-		Content: game.CurrPlayer.Mention() + " won!",
+		Embeds: []*discordgo.MessageEmbed{
+			{
+				Title: winner.Username + " won!",
+				Image: &discordgo.MessageEmbedImage{
+					URL: "attachment://image.png",
+				},
+			},
+		},
 		Files: []*discordgo.File{
 			{
 				Name:   "image.png",
@@ -69,16 +59,43 @@ func newFile() *os.File {
 	return sendFile
 }
 
+func ErrorEditPlayer(error error) error {
+	Proxy.Delete("")
+	Proxy.Followup(Response(game.Player1.Mention()+" vs. "+game.Player2.Mention() + "; Error: " + error.Error()), false)
+	return nil
+}
+
 func ErrorEdit(error error) {
 	Proxy.Edit("", common.Response{
 		Content: error.Error(),
 	})
 }
 
-func ErrorRespond(proxy common.InteractionProxy, error error, ephemeral bool) {
-	proxy.Respond(common.Response{
-		Content: error.Error(),
-	}, ephemeral)
+func Response(content string) common.Response {
+	return common.Response{
+		Content: content,
+		Embeds: []*discordgo.MessageEmbed{
+			{
+				Title: game.CurrPlayer.Username + "'s turn!",
+				Image: &discordgo.MessageEmbedImage{
+					URL: "attachment://image.png",
+				},
+			},
+		},
+		Files: []*discordgo.File{
+			{
+				Name:   "image.png",
+				Reader: newFile(),
+			},
+		},
+		Components: []discordgo.MessageComponent{
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					generateSelectMenu(),
+				},
+			},
+		},
+	}
 }
 
 func generateSelectMenu() discordgo.SelectMenu {

@@ -16,7 +16,6 @@ var commands = []common.Command{
 }
 
 var components = []common.Component{
-	component.ConnectFourButton{},
 	component.ConnectFourSelectMenu{},
 }
 

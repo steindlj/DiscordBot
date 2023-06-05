@@ -81,6 +81,7 @@ func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 
 func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 	proxy.Defer(false)
+	game.Grid = [6][7]int{}
 	message.Proxy = proxy
 	player1, err := proxy.Member()
 	if err != nil {

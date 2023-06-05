@@ -1,6 +1,7 @@
 package component
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 
@@ -28,8 +29,8 @@ func (ConnectFourSelectMenu) Handle(proxy common.HandleProxy) error {
 		message.ErrorEdit(err)
 	}
 	userId := member.User.ID
-	if !strings.EqualFold(userId, game.Player1.ID) && !strings.EqualFold(userId, game.Player2.ID) {
-		message.ErrorEdit(err)
+	if !strings.EqualFold(userId, game.CurrPlayer.ID) {
+		return message.ErrorEditPlayer(errors.New("wrong player"))
 	}
 	colString, err := proxy.SelectedValues()
 	if err != nil {
