@@ -1,4 +1,4 @@
-package main
+package command
 
 import (
 	"fmt"
@@ -126,7 +126,7 @@ func save(directory string, fileName string, grid [][]color.Color) string {
 	filePath := filepath.Join(directory, "IR_"+fileName)
 	file, err := os.Create(filePath)
 	if err != nil {
-		logger.Info("Cannot create file", "err", err)
+		return fmt.Sprintf("Cannot create file: %w", err)
 	}
 	defer file.Close()
 	jpeg.Encode(file, img, &jpeg.Options{Quality: 100})

@@ -1,4 +1,4 @@
-module github.com/steindlj/dc-plugins/InfraredFilter
+module github.com/steindlj/dc-plugins/ImageFilters
 
 go 1.20
 
