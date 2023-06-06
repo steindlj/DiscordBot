@@ -72,6 +72,10 @@ func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
 	return nil
 }
 
+/**
+* This function load the image from the directory and create an array 
+* from the image with the color values.
+*/
 func load(filePath string) ([][]color.Color, error) {
 	imgFile, err := os.Open(filePath)
 	if err != nil {
@@ -122,6 +126,10 @@ func save(directory string, fileName string, grid [][]color.Color) string {
 	return filePath
 }
 
+/**
+* This function will go through each pixel of the saved image and convered the colors
+* and save it back into a new array.
+*/
 func filter(grid [][]color.Color) (irImage [][]color.Color) {
 	xlen, ylen := len(grid), len(grid[0])
 	irImage = make([][]color.Color, xlen)
@@ -156,6 +164,10 @@ func filter(grid [][]color.Color) (irImage [][]color.Color) {
 	return
 }
 
+/**
+* This function download the image from user to a temporary directory
+* to process the image later.
+*/
 func downloadImage(url string, directory string) (string, error) {
 	err := os.MkdirAll(directory, os.ModePerm)
 	if err != nil {
@@ -189,6 +201,10 @@ func downloadImage(url string, directory string) (string, error) {
 	return filePath, nil
 }
 
+/**
+* This function will delete the temporary directory after the image was send
+* back to the user. 
+*/
 func deleteDir(directory string) error {
 	err := os.RemoveAll(directory)
 	if err != nil {
