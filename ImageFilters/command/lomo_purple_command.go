@@ -13,7 +13,7 @@ import (
 	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
 	"github.com/PerformLine/go-stockutil/colorutil"
 	"github.com/bwmarrin/discordgo"
-	
+	"github.com/steindlj/dc-plugins/ImageFilters/command"
 )
 
 type LomoPurpleCommand struct{}
