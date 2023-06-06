@@ -51,7 +51,10 @@ func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
 	if err != nil {
 		return fmt.Errorf("failed to download image: %w", err)
 	}
-	grid, _ := load(path)
+	grid, err := load(path)
+	if err != nil {
+		return fmt.Errorf("failed to load image: %w", err)
+	}
 	newPath := save(tempDir, img.Filename, filter(grid))
 
 	sendImg, err := os.Open(newPath)
@@ -86,6 +89,10 @@ func load(filePath string) ([][]color.Color, error) {
 	img, _, err := image.Decode(imgFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode image: %w", err)
+	}
+
+	if img.ColorModel() != color.YCbCrModel {
+		return nil, fmt.Errorf("only JPEG are supported")
 	}
 
 	bounds := img.Bounds()
