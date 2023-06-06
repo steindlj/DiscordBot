@@ -1,13 +1,13 @@
 package main
 
 import (
+	"io"
+	"os"
 	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
-	"io"
 	"net/http"
-	"os"
 	"path/filepath"
 
 	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
@@ -60,15 +60,15 @@ func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
 	}
 	defer sendImg.Close()
 
-	proxy.Followup(common.Response{
-		Files: []*discordgo.File{
-			{
-				Name:   img.Filename,
-				Reader: sendImg,
-			},
-		},
-	}, false)
-	deleteDir(tempDir)
+	// proxy.Followup(common.Response{
+	// 	Files: []*discordgo.File{
+	// 		{
+	// 			Name:   img.Filename,
+	// 			Reader: sendImg,
+	// 		},
+	// 	},
+	// }, false)
+	// deleteDir(tempDir)
 	return nil
 }
 
