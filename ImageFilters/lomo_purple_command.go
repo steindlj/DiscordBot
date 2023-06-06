@@ -19,7 +19,7 @@ type LomoPurpleCommand struct{}
 
 var _ common.Command = LomoPurpleCommand{}
 
-// CommandData implements provider.Command
+// Defines structure of command.
 func (LomoPurpleCommand) Data() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
 		Type:        discordgo.ChatApplicationCommand,
@@ -36,7 +36,7 @@ func (LomoPurpleCommand) Data() (discordgo.ApplicationCommand, error) {
 	}, nil
 }
 
-// Execute implements provider.Command
+// Execution of command.
 func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
 	proxy.Defer(true)
 
@@ -101,7 +101,7 @@ func load(filePath string) ([][]color.Color, error) {
 	return imgArray, nil
 }
 
-// Autocomplete implements bacotell_common.Command.
+// Has to be implented but is not used by this command.
 func (LomoPurpleCommand) Autocomplete(common.AutocompleteProxy) error {
 	panic("unimplemented")
 }
@@ -165,7 +165,7 @@ func filter(grid [][]color.Color) (irImage [][]color.Color) {
 }
 
 /**
-* This function download the image from user to a temporary directory
+* This function downloads the image from user to a temporary directory
 * to process the image later.
 */
 func downloadImage(url string, directory string) (string, error) {

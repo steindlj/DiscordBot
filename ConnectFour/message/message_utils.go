@@ -10,14 +10,18 @@ import (
 	"github.com/steindlj/dc-plugins/ConnectFour/image"
 )
 
-var Proxy common.InteractionProxy
+var Proxy common.InteractionProxy // current proxy 
 
+// Sends a message with an updated game status including image, 
+// round counter and current player. 
 func NewMessage() error {
 	Proxy.Delete("")
 	_, err := Proxy.Followup(Response(basicTitle()), false)
 	return err
 }
 
+// Sends the winner message announcing the winner and showing the final game state.
+// Components are excluded since the game is finished. 
 func WinMessage() error {
 	Proxy.Delete("")
 	_, err := Proxy.Followup(common.Response{
@@ -39,12 +43,14 @@ func WinMessage() error {
 	return err
 }
 
+// Creates a new temporary png-file which will be encoded with
+// the current state of the game.
 func newFile() *os.File {
 	file, err := os.CreateTemp(os.TempDir(), "*.png")
 	if err != nil {
 		ErrorEdit(err)
 	}
-	image.GenerateImg(file)
+	image.EncodeImage(file)
 	sendFile, err := os.Open(file.Name())
 	if err != nil {
 		ErrorEdit(err)
@@ -52,13 +58,16 @@ func newFile() *os.File {
 	return sendFile
 }
 
+// Will only be called if a non-player user uses a command.
+// Resends the message and points out the error in the content field of the response. 
 func ErrorEditPlayer(error error) error {
 	Proxy.Delete("")
 	_, err := Proxy.Followup(Response(basicTitle() + "; Error: " + error.Error()), false)
 	return err
 }
 
-// Changes content of discord message from current proxy to error message.
+// Changes content of discord message to error message.
+// Command will become unusable. 
 func ErrorEdit(error error) {
 	Proxy.Edit("", common.Response{
 		Content: error.Error(),
@@ -78,6 +87,10 @@ func basicTitle() string {
 	}
 	return game.Player1.Mention()+p1Color+" vs. "+game.Player2.Mention()+p2Color
 }
+
+// Returns the base response used for each round with all components
+// and the image file showing the current state of the game.
+// The content of the response is specified by the content parameter.
 func Response(content string) common.Response {
 	var turn string
 	if []rune(game.CurrPlayer.Username)[len(game.CurrPlayer.Username)-1] == 's' {
@@ -92,7 +105,7 @@ func Response(content string) common.Response {
 				Title: game.CurrPlayer.Username + turn,
 				Description: "Round: " + strconv.Itoa(game.RoundCount),
 				Image: &discordgo.MessageEmbedImage{
-					URL: "attachment://image.png",
+					URL: "attachment://image.png", 
 				},
 			},
 		},
@@ -121,6 +134,7 @@ func Response(content string) common.Response {
 	}
 }
 
+// Returns a select menu containing all empty columns as an option to choose from.
 func generateSelectMenu() discordgo.SelectMenu {
 	var options []discordgo.SelectMenuOption
 	for i := range emptyCols() {

@@ -31,11 +31,11 @@ func Mix(filepath string, effect int64) string {
 	switch effect {
 	case 0: // default
 		return wavFile.Name()
-	case 1: // distortion: multiplying the pcm value by 5
+	case 1: // distortion: multiplying the pcm value by 5 --> will often exceed limit --> clipping occurs
 		for i := range buffer.Data {
 			buffer.Data[i] *= 5
 		}
-	case 2: // vintage/old recording: increasing the pcm by random values to create background noise
+	case 2: // vintage/old recording: changing the pcm by random values between -200 and +199 to create background noise
 		for i := range buffer.Data {
 			buffer.Data[i] += rand.Intn(400) - 200
 		}
@@ -54,7 +54,7 @@ func Mix(filepath string, effect int64) string {
 	return newFile.Name()
 }
 
-// Decodes mp3-file and returns file path of converted wav-file.
+// Decodes a specified mp3-file and returns the file path of the converted wav-file.
 func converToWAV(file *os.File) string {
 	streamer, format, err := mp3.Decode(file)
 	if err != nil {

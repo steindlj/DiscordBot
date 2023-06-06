@@ -14,6 +14,7 @@ type TTSCommand struct{}
 
 var _ common.Command = TTSCommand{}
 
+// Defines structure of command.
 func (TTSCommand) Data() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
 		Type:        discordgo.ChatApplicationCommand,
@@ -86,9 +87,10 @@ func (TTSCommand) Data() (discordgo.ApplicationCommand, error) {
 	}, nil
 }
 
+// Execution of command.
 func (TTSCommand) Execute(proxy common.ExecuteProxy) error {
 	proxy.Defer(false)
-	message.Proxy = proxy
+	message.Proxy = proxy 
 	text, err := proxy.StringOption("text")
 	if err != nil {
 		message.ErrorEdit(err)
@@ -117,6 +119,7 @@ func (TTSCommand) Execute(proxy common.ExecuteProxy) error {
 	})
 }
 
+// Has to be implented but is not used by this command.
 func (TTSCommand) Autocomplete(common.AutocompleteProxy) error {
 	panic("unimplemented")
 }

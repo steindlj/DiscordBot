@@ -10,19 +10,22 @@ import (
 )
 
 var (
-	space      = 12
-	width      = 48
+	space      = 12 // between chips
+	width      = 48 // width of chips 
 	Background color.RGBA
 	ColorP1    color.RGBA
 	ColorP2    color.RGBA
-	img        = image.NewRGBA(image.Rect(0, 0, 7*width+8*space, 6*width+7*space))
+	img        = image.NewRGBA(image.Rect(0, 0, 7*width+8*space, 6*width+7*space)) // holds the RGBA values set by methods
 )
 
-func GenerateImg(file *os.File) {
+// Writes current image to given png-file.
+func EncodeImage(file *os.File) {
 	png.Encode(file, img)
 }
 
-func ColorBackground() {
+// Generates the image by coloring the background with the background color
+// and coloring each of the 42 fields based on the value in the grid. 
+func GenerateImg() {
 	for i := 0; i < 7*width+8*space; i++ {
 		for j := 0; j < 6*width+7*space; j++ {
 			img.Set(i, j, Background)
@@ -35,6 +38,9 @@ func ColorBackground() {
 	}
 }
 
+// Colors a specified spot in the grid based on the value in it.
+// val = 0 -> no chip -> background color with 90% alpha value
+// val = 1 -> player 1 -> ColorP1, val = 2 -> player 2 -> ColorP2
 func ColorField(row, col int) {
 	x := (col+1)*space + col*width
 	y := (row+1)*space + row*width

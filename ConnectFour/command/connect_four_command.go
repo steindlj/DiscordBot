@@ -15,7 +15,7 @@ type ConnectFourCommand struct{}
 
 var _ common.Command = ConnectFourCommand{}
 
-
+// Defines structure of command.
 func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
 		Type:        discordgo.ChatApplicationCommand,
@@ -80,9 +80,10 @@ func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 	}, nil
 }
 
+// Execution of command.
 func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 	proxy.Defer(false)
-	game.Grid = [6][7]int{}
+	game.Grid = [6][7]int{} 
 	game.RoundCount = 1
 	message.Proxy = proxy
 	player1, err := proxy.Member()
@@ -116,11 +117,11 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 		message.ErrorEdit(err)
 	}
 	image.Background = color.RGBA{uint8(red), uint8(green), uint8(blue), uint8(alpha)}
-	image.ColorBackground()
-	if chipColor == 0 {
+	image.GenerateImg()
+	if chipColor == 0 { // command user chose chip color red
 		image.ColorP1 = color.RGBA{255, 0, 0, uint8(alpha)}
 		image.ColorP2 = color.RGBA{255, 255, 0, uint8(alpha)}
-	} else {
+	} else { // command user chose chip color yellow
 		image.ColorP1 = color.RGBA{255, 255, 0, uint8(alpha)}
 		image.ColorP2 = color.RGBA{255, 0, 0, uint8(alpha)}
 	}
@@ -128,7 +129,7 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 	return message.NewMessage()
 }
 
-// Autocomplete implements bacotell_common.Command.
+// Has to be implented but is not used by this command.
 func (ConnectFourCommand) Autocomplete(common.AutocompleteProxy) error {
 	panic("unimplemented")
 }

@@ -14,7 +14,9 @@ var (
 	RoundCount int
 )
 
-func SetChip(col int) (r, c int) {
+// Places a chip in the specified column in the lowest possible row
+// and changes the value of the grid based on the current player.
+func PlaceChip(col int) (r, c int) {
 	RoundCount++
 	var val int
 	if strings.EqualFold(CurrPlayer.ID, Player1.ID) {
@@ -31,6 +33,7 @@ func SetChip(col int) (r, c int) {
 	return
 }
 
+// Alternately changes the current player.
 func SetNextPlayer() {
 	if strings.EqualFold(CurrPlayer.ID, Player1.ID) {
 		CurrPlayer = Player2
@@ -39,10 +42,12 @@ func SetNextPlayer() {
 	}
 }
 
+// Checks all possibilities for 4 adjacent chips.
 func CheckWin() bool {
 	return checkRows() || checkCols() || checkDiagonalsLeft() || checkDiagonalsRight()
 }
 
+// Checks all rows for 4 adjacent chips.
 func checkRows() bool {
 	for i := 0; i < 6; i++ {
 		for j := 0; j < 7-3; j++ {
@@ -54,6 +59,7 @@ func checkRows() bool {
 	return false
 }
 
+// Checks all columns for 4 adjacent chips.
 func checkCols() bool {
 	for i := 0; i < 7; i++ {
 		for j := 0; j < 6-3; j++ {
@@ -65,18 +71,19 @@ func checkCols() bool {
 	return false
 }
 
+// Checks all possible diagonals starting in the top left corner for 4 adjacent chips.
 func checkDiagonalsLeft() bool {
 	for i := 0; i <= 3; i++ {
 		if i == 0 {
-			if fromUpperLeft(i, 0) {
+			if fromTopLeft(i, 0) {
 				return true
 			}
 		} else if i == 3 {
-			if fromUpperLeft(0, i) {
+			if fromTopLeft(0, i) {
 				return true
 			}
 		} else {
-			if fromUpperLeft(i, 0) || fromUpperLeft(0, i) {
+			if fromTopLeft(i, 0) || fromTopLeft(0, i) {
 				return true
 			}
 		}
@@ -84,14 +91,15 @@ func checkDiagonalsLeft() bool {
 	return false
 }
 
+// Checks all possible diagonals starting in the top right corner for 4 adjacent chips.
 func checkDiagonalsRight() bool {
 	for i := 0; i < 6; i++ {
 		if i < 3 {
-			if fromUpperRight(i, 6) {
+			if fromTopRight(i, 6) {
 				return true
 			}
 		} else {
-			if fromUpperRight(0, i) {
+			if fromTopRight(0, i) {
 				return true
 			}
 		}
@@ -99,7 +107,8 @@ func checkDiagonalsRight() bool {
 	return false
 }
 
-func fromUpperLeft(i, j int) bool {
+// Checks for 4 adjacent chips in a diagonal starting at a point in the top left corner.
+func fromTopLeft(i, j int) bool {
 	for i+3 <= 5 && j+3 <= 6 {
 		if Grid[i][j] == Grid[i+1][j+1] && Grid[i+1][j+1] == Grid[i+2][j+2] && Grid[i+2][j+2] == Grid[i+3][j+3] && Grid[i+3][j+3] != 0 {
 			return true
@@ -110,7 +119,8 @@ func fromUpperLeft(i, j int) bool {
 	return false
 }
 
-func fromUpperRight(i, j int) bool {
+// Checks for 4 adjacent chips in a diagonal starting at a point in the top right corner.
+func fromTopRight(i, j int) bool {
 	for i+3 <= 5 && j-3 >= 0 {
 		if Grid[i][j] == Grid[i+1][j-1] && Grid[i+1][j-1] == Grid[i+2][j-2] && Grid[i+2][j-2] == Grid[i+3][j-3] && Grid[i+3][j-3] != 0 {
 			return true
