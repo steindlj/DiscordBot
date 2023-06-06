@@ -2,7 +2,8 @@ package component
 
 import (
 	"errors"
-	"strconv"
+	"image/color"
+	"math/rand"
 	"strings"
 
 	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
@@ -11,17 +12,17 @@ import (
 	"github.com/steindlj/dc-plugins/ConnectFour/message"
 )
 
-type ConnectFourSelectMenu struct{}
+type ConnectFourButton struct{}
 
-var _ common.Component = ConnectFourSelectMenu{}
+var _ common.Component = ConnectFourButton{}
 
 // CustomID implements bacotell_common.Component.
-func (ConnectFourSelectMenu) CustomID() (string, error) {
-	return "colsm", nil
+func (ConnectFourButton) CustomID() (string, error) {
+	return "btn", nil
 }
 
 // Handle implements bacotell_common.Component.
-func (ConnectFourSelectMenu) Handle(proxy common.HandleProxy) error {
+func (ConnectFourButton) Handle(proxy common.HandleProxy) error {
 	proxy.Defer(false)
 	message.Proxy = proxy
 	member, err := proxy.Member()
@@ -29,21 +30,14 @@ func (ConnectFourSelectMenu) Handle(proxy common.HandleProxy) error {
 		message.ErrorEdit(err)
 	}
 	userId := member.User.ID
-	if !strings.EqualFold(userId, game.CurrPlayer.ID) {
+	if !strings.EqualFold(userId, game.Player1.ID) && !strings.EqualFold(userId, game.Player2.ID) {
 		return message.ErrorEditPlayer(errors.New("wrong player"))
 	}
-	colString, err := proxy.SelectedValues()
-	if err != nil {
-		message.ErrorEdit(err)
-	}
-	col, err := strconv.Atoi(colString[0])
-	if err != nil {
-		message.ErrorEdit(err)
-	}
-	image.ColorField(game.SetChip(col))
-	if game.CheckWin() {
-		return message.WinMessage()
-	}
-	game.SetNextPlayer()
+	red := uint8(rand.Intn(256))
+	green := uint8(rand.Intn(256))
+	blue := uint8(rand.Intn(256))
+	alpha := uint8(rand.Intn(256))
+	image.Background = color.RGBA{red, green, blue, alpha}
+	image.ColorBackground()
 	return message.NewMessage()
 }

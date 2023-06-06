@@ -11,7 +11,33 @@ var (
 	Player2    *discordgo.User
 	CurrPlayer *discordgo.User
 	Grid       [6][7]int
+	RoundCount int
 )
+
+func SetChip(col int) (r, c int) {
+	RoundCount++
+	var val int
+	if strings.EqualFold(CurrPlayer.ID, Player1.ID) {
+		val = 1
+	} else {
+		val = 2
+	}
+	for i := 5; i >= 0; i-- {
+		if Grid[i][col] == 0 {
+			Grid[i][col] = val
+			return i, col
+		}
+	}
+	return
+}
+
+func SetNextPlayer() {
+	if strings.EqualFold(CurrPlayer.ID, Player1.ID) {
+		CurrPlayer = Player2
+	} else {
+		CurrPlayer = Player1
+	}
+}
 
 func CheckWin() bool {
 	return checkRows() || checkCols() || checkDiagonalsLeft() || checkDiagonalsRight()
@@ -93,22 +119,4 @@ func fromUpperRight(i, j int) bool {
 		j--
 	}
 	return false
-}
-
-func SetChip(col int) (r, c int) {
-	var val int
-	if strings.EqualFold(CurrPlayer.ID, Player1.ID) {
-		val = 1
-		CurrPlayer = Player2
-	} else {
-		val = 2
-		CurrPlayer = Player1
-	}
-	for i := 5; i >= 0; i-- {
-		if Grid[i][col] == 0 {
-			Grid[i][col] = val
-			return i, col
-		}
-	}
-	return
 }

@@ -10,8 +10,11 @@ import (
 	"github.com/steindlj/dc-plugins/Text2Vocals/message"
 )
 
-func Mix(filename string, effect int64) string {
-	mp3File, err := os.Open(filename)
+// Mix decodes file given by the filepath into pcm values
+// which then will be modified depending on the wanted effect. 
+// Returns file path of new file with modified sound.
+func Mix(filepath string, effect int64) string {
+	mp3File, err := os.Open(filepath)
 	if err != nil {
 		message.ErrorEdit(err)
 	}
@@ -28,18 +31,17 @@ func Mix(filename string, effect int64) string {
 	switch effect {
 	case 0: // default
 		return wavFile.Name()
-	case 1: // distortion
+	case 1: // distortion: multiplying the pcm value by 5
 		for i := range buffer.Data {
 			buffer.Data[i] *= 5
 		}
-	case 2: // vintage
+	case 2: // vintage/old recording: increasing the pcm by random values to create background noise
 		for i := range buffer.Data {
-			buffer.Data[i] = int(float64(buffer.Data[i]) * 0.8)
 			buffer.Data[i] += rand.Intn(400) - 200
 		}
-	case 3: // slowed
+	case 3: // slowed: decreasing sample rate --> less samples per second --> sounds slower
 		buffer.Format.SampleRate /= 2
-	case 4: // sped up
+	case 4: // sped up: increasing sampe rate --> more samples per second --> sounds faster
 		buffer.Format.SampleRate *= 2
 	}
 	newFile, err := os.CreateTemp(os.TempDir(), "*.wav")
@@ -52,6 +54,7 @@ func Mix(filename string, effect int64) string {
 	return newFile.Name()
 }
 
+// Decodes mp3-file and returns file path of converted wav-file.
 func converToWAV(file *os.File) string {
 	streamer, format, err := mp3.Decode(file)
 	if err != nil {

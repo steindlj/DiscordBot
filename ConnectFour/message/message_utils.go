@@ -3,7 +3,6 @@ package message
 import (
 	"os"
 	"strconv"
-	"strings"
 
 	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
 	"github.com/bwmarrin/discordgo"
@@ -15,22 +14,16 @@ var Proxy common.InteractionProxy
 
 func NewMessage() error {
 	Proxy.Delete("")
-	_, err := Proxy.Followup(Response(game.Player1.Mention()+" vs. "+game.Player2.Mention()), false)
+	_, err := Proxy.Followup(Response(basicTitle()), false)
 	return err
 }
 
 func WinMessage() error {
 	Proxy.Delete("")
-	var winner *discordgo.User
-	if strings.EqualFold(game.CurrPlayer.ID, game.Player1.ID) {
-		winner = game.Player2
-	} else {
-		winner = game.Player1
-	}
 	_, err := Proxy.Followup(common.Response{
 		Embeds: []*discordgo.MessageEmbed{
 			{
-				Title: winner.Username + " won!",
+				Title: game.CurrPlayer.Username + " won!",
 				Image: &discordgo.MessageEmbedImage{
 					URL: "attachment://image.png",
 				},
@@ -61,22 +54,43 @@ func newFile() *os.File {
 
 func ErrorEditPlayer(error error) error {
 	Proxy.Delete("")
-	Proxy.Followup(Response(game.Player1.Mention()+" vs. "+game.Player2.Mention() + "; Error: " + error.Error()), false)
-	return nil
+	_, err := Proxy.Followup(Response(basicTitle() + "; Error: " + error.Error()), false)
+	return err
 }
 
+// Changes content of discord message from current proxy to error message.
 func ErrorEdit(error error) {
 	Proxy.Edit("", common.Response{
 		Content: error.Error(),
 	})
 }
 
+// Returns the base title with the current players and their color.
+func basicTitle() string {
+	var p1Color string
+	var p2Color string
+	if image.ColorP1.G == 0 {
+		p1Color = "(red)"
+		p2Color = "(yellow)"
+	} else {
+		p1Color = "(yellow)"
+		p2Color = "(red)"
+	}
+	return game.Player1.Mention()+p1Color+" vs. "+game.Player2.Mention()+p2Color
+}
 func Response(content string) common.Response {
+	var turn string
+	if []rune(game.CurrPlayer.Username)[len(game.CurrPlayer.Username)-1] == 's' {
+		turn = " turn!"
+	} else {
+		turn = "'s turn!"
+	}
 	return common.Response{
 		Content: content,
 		Embeds: []*discordgo.MessageEmbed{
 			{
-				Title: game.CurrPlayer.Username + "'s turn!",
+				Title: game.CurrPlayer.Username + turn,
+				Description: "Round: " + strconv.Itoa(game.RoundCount),
 				Image: &discordgo.MessageEmbedImage{
 					URL: "attachment://image.png",
 				},
@@ -92,6 +106,15 @@ func Response(content string) common.Response {
 			discordgo.ActionsRow{
 				Components: []discordgo.MessageComponent{
 					generateSelectMenu(),
+				},
+			},
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.Button{
+						CustomID: "btn",
+						Label: "Random Color",
+						Style: discordgo.SuccessButton,
+					},
 				},
 			},
 		},
@@ -119,6 +142,7 @@ func generateSelectMenu() discordgo.SelectMenu {
 	}
 }
 
+// Returns slice containing indices of the empty columns in the grid.
 func emptyCols() []int {
 	var cols []int
 	for i := 0; i < 7; i++ {

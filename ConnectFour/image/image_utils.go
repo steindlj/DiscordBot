@@ -13,8 +13,8 @@ var (
 	space      = 12
 	width      = 48
 	Background color.RGBA
-	ColorP1    = color.RGBA{255, 0, 0, 255}
-	ColorP2    = color.RGBA{255, 255, 0, 255}
+	ColorP1    color.RGBA
+	ColorP2    color.RGBA
 	img        = image.NewRGBA(image.Rect(0, 0, 7*width+8*space, 6*width+7*space))
 )
 

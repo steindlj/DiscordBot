@@ -11,6 +11,7 @@ import (
 
 var Proxy common.InteractionProxy
 
+// 
 func CreateFile(text string, lang string) string {
 	dir := os.TempDir()
 	speech := htgotts.Speech{Folder: dir, Language: lang}
@@ -19,11 +20,13 @@ func CreateFile(text string, lang string) string {
 	return dir + "\\" + name + ".mp3"
 }
 
+// Generates hashstring from given string.
 func generateHash(name string) string {
 	byte := md5.Sum([]byte(name))
 	return hex.EncodeToString(byte[:])
 }
 
+// Changes content of discord message from current proxy to error message.
 func ErrorEdit(error error) {
 	Proxy.Edit("", common.Response{
 		Content: error.Error(),

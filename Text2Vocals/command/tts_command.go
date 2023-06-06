@@ -107,7 +107,7 @@ func (TTSCommand) Execute(proxy common.ExecuteProxy) error {
 	}
 	defer fileToSend.Close()
 	return proxy.Edit("", common.Response{
-		Content: text + " in " + lang,
+		Content: "\"" + text + "\" in " + lang,
 		Files: []*discordgo.File{
 			{
 				Name:   "audio.wav",
@@ -117,7 +117,6 @@ func (TTSCommand) Execute(proxy common.ExecuteProxy) error {
 	})
 }
 
-// Autocomplete implements bacotell_common.Command.
 func (TTSCommand) Autocomplete(common.AutocompleteProxy) error {
 	panic("unimplemented")
 }

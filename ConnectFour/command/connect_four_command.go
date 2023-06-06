@@ -15,6 +15,7 @@ type ConnectFourCommand struct{}
 
 var _ common.Command = ConnectFourCommand{}
 
+
 func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
 		Type:        discordgo.ChatApplicationCommand,
@@ -82,6 +83,7 @@ func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 	proxy.Defer(false)
 	game.Grid = [6][7]int{}
+	game.RoundCount = 1
 	message.Proxy = proxy
 	player1, err := proxy.Member()
 	if err != nil {
@@ -115,9 +117,12 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 	}
 	image.Background = color.RGBA{uint8(red), uint8(green), uint8(blue), uint8(alpha)}
 	image.ColorBackground()
-	if chipColor != 0 {
-		image.ColorP1 = color.RGBA{255, 255, 0, 255}
-		image.ColorP2 = color.RGBA{255, 0, 0, 255}
+	if chipColor == 0 {
+		image.ColorP1 = color.RGBA{255, 0, 0, uint8(alpha)}
+		image.ColorP2 = color.RGBA{255, 255, 0, uint8(alpha)}
+	} else {
+		image.ColorP1 = color.RGBA{255, 255, 0, uint8(alpha)}
+		image.ColorP2 = color.RGBA{255, 0, 0, uint8(alpha)}
 	}
 	game.CurrPlayer = player1.User
 	return message.NewMessage()
