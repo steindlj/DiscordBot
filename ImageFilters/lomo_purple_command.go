@@ -1,13 +1,13 @@
 package main
 
 import (
-	"io"
-	"os"
 	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
+	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
@@ -60,15 +60,15 @@ func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
 	}
 	defer sendImg.Close()
 
-	// proxy.Followup(common.Response{
-	// 	Files: []*discordgo.File{
-	// 		{
-	// 			Name:   img.Filename,
-	// 			Reader: sendImg,
-	// 		},
-	// 	},
-	// }, false)
-	// deleteDir(tempDir)
+	proxy.Followup(common.Response{
+		Files: []*discordgo.File{
+			{
+				Name:   img.Filename,
+				Reader: sendImg,
+			},
+		},
+	}, false)
+	deleteDir(tempDir)
 	return nil
 }
 
@@ -135,12 +135,18 @@ func filter(grid [][]color.Color) (irImage [][]color.Color) {
 
 			hue, sat, light := colorutil.RgbToHsl(float64(R), float64(G), float64(B))
 
-			if hue >= 45 && hue <= 75 {
-				hue += 270
-			} else if hue >= 75 && hue <= 135 {
-				hue += 180
-			} else if hue >= 225 && hue <= 255 {
-				hue -= 120
+			//Red -> Orange
+			if hue >= 0 && hue <= 15 {
+				hue += 30
+				//Yellow -> Magenta
+			} else if hue >= 45 && hue <= 75 {
+				hue += 255
+				//Green -> Magenta
+			} else if hue > 75 && hue <= 150 {
+				hue += 150
+				//Blue -> Green
+			} else if hue >= 165 && hue <= 255 {
+				hue -= 75
 			}
 
 			newR, newG, newB := colorutil.HslToRgb(hue, sat, light)
