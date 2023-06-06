@@ -2,7 +2,6 @@ package component
 
 import (
 	"errors"
-	"image/color"
 	"math/rand"
 	"strings"
 
@@ -35,11 +34,10 @@ func (ConnectFourButton) Handle(proxy common.HandleProxy) error {
 	if !strings.EqualFold(userId, game.Player1.ID) && !strings.EqualFold(userId, game.Player2.ID) {
 		return message.ErrorEditPlayer(errors.New("unauthorized user tried to interact"))
 	}
-	red := uint8(rand.Intn(256))
-	green := uint8(rand.Intn(256))
-	blue := uint8(rand.Intn(256))
-	alpha := uint8(rand.Intn(256))
-	image.Background = color.RGBA{red, green, blue, alpha}
+	red := rand.Intn(256)
+	green := rand.Intn(256)
+	blue := rand.Intn(256)
+	image.Grid = int64((red << 24) | (green << 16) | (blue << 8) | 255)
 	image.GenerateImg()
 	return message.NewMessage()
 }

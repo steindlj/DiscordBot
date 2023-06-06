@@ -59,12 +59,8 @@ func (TTSCommand) Data() (discordgo.ApplicationCommand, error) {
 				Type:        discordgo.ApplicationCommandOptionInteger,
 				Name:        "effect",
 				Description: "Mixing effect",
-				Required:    true,
+				Required:    false,
 				Choices: []*discordgo.ApplicationCommandOptionChoice{
-					{
-						Name:  "default",
-						Value: 0,
-					},
 					{
 						Name:  "distortion",
 						Value: 1,
@@ -101,7 +97,7 @@ func (TTSCommand) Execute(proxy common.ExecuteProxy) error {
 	}
 	effect, err := proxy.IntegerOption("effect")
 	if err != nil {
-		message.ErrorEdit(err)
+		effect = 0
 	}
 	fileToSend, err := os.Open(audio.Mix(message.CreateFile(text, lang), effect))
 	if err != nil {

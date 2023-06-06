@@ -74,18 +74,9 @@ func ErrorEdit(error error) {
 	})
 }
 
-// Returns the base title with the current players and their color.
+// Returns the base title with the current players.
 func basicTitle() string {
-	var p1Color string
-	var p2Color string
-	if image.ColorP1.G == 0 {
-		p1Color = "(red)"
-		p2Color = "(yellow)"
-	} else {
-		p1Color = "(yellow)"
-		p2Color = "(red)"
-	}
-	return game.Player1.Mention()+p1Color+" vs. "+game.Player2.Mention()+p2Color
+	return game.Player1.Mention()+" vs. "+game.Player2.Mention()
 }
 
 // Returns the base response used for each round with all components

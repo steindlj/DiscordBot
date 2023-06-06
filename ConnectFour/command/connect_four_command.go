@@ -1,8 +1,6 @@
 package command
 
 import (
-	"image/color"
-
 	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
 	util "github.com/EliasStar/BacoTell/pkg/bacotell_util"
 	"github.com/bwmarrin/discordgo"
@@ -30,51 +28,31 @@ func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 			},
 			{
 				Type:        discordgo.ApplicationCommandOptionInteger,
-				Name:        "chip_color",
-				Description: "Red or Yellow",
-				Required:    true,
-				Choices: []*discordgo.ApplicationCommandOptionChoice{
-					{
-						Name:  "red",
-						Value: 0,
-					},
-					{
-						Name:  "yellow",
-						Value: 1,
-					},
-				},
+				Name:        "your_color",
+				Description: "Chip color",
+				MinValue:    util.Ptr(0.0),
+				MaxValue:    0xFFFFFF,
 			},
 			{
 				Type:        discordgo.ApplicationCommandOptionInteger,
-				Name:        "red",
-				Description: "Red value",
-				Required:    true,
+				Name:        "opponent_color",
+				Description: "Chip color",
 				MinValue:    util.Ptr(0.0),
-				MaxValue:    255,
+				MaxValue:    0xFFFFFF,
 			},
 			{
 				Type:        discordgo.ApplicationCommandOptionInteger,
-				Name:        "green",
-				Description: "Green value",
-				Required:    true,
+				Name:        "grid",
+				Description: "Grid value",
 				MinValue:    util.Ptr(0.0),
-				MaxValue:    255,
+				MaxValue:    0xFFFFFF,
 			},
 			{
 				Type:        discordgo.ApplicationCommandOptionInteger,
-				Name:        "blue",
-				Description: "Blue value",
-				Required:    true,
+				Name:        "cell",
+				Description: "Cell value",
 				MinValue:    util.Ptr(0.0),
-				MaxValue:    255,
-			},
-			{
-				Type:        discordgo.ApplicationCommandOptionInteger,
-				Name:        "alpha",
-				Description: "Alpha value",
-				Required:    true,
-				MinValue:    util.Ptr(0.0),
-				MaxValue:    255,
+				MaxValue:    0xFFFFFF,
 			},
 		},
 	}, nil
@@ -83,7 +61,7 @@ func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 // Execution of command.
 func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 	proxy.Defer(false)
-	game.Grid = [6][7]int{} 
+	game.Grid = [6][7]int{}
 	game.RoundCount = 1
 	message.Proxy = proxy
 	player1, err := proxy.Member()
@@ -96,35 +74,23 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 		message.ErrorEdit(err)
 	}
 	game.Player2 = player2
-	chipColor, err := proxy.IntegerOption("chip_color")
+	image.ColorP1, err = proxy.IntegerOption("your_color")
 	if err != nil {
-		message.ErrorEdit(err)
-	}
-	red, err := proxy.IntegerOption("red")
+		image.ColorP1 = 0xFF0000
+	} 
+	image.ColorP2, err = proxy.IntegerOption("opponent_color")
 	if err != nil {
-		message.ErrorEdit(err)
-	}
-	green, err := proxy.IntegerOption("green")
+		image.ColorP2 = 0xFFFF00
+	} 
+	image.Grid, err = proxy.IntegerOption("grid")
 	if err != nil {
-		message.ErrorEdit(err)
+		image.Grid = 0x0000FF
 	}
-	blue, err := proxy.IntegerOption("blue")
+	image.Cell, err = proxy.IntegerOption("cell")
 	if err != nil {
-		message.ErrorEdit(err)
+		image.Cell = 0xFFFFFF
 	}
-	alpha, err := proxy.IntegerOption("alpha")
-	if err != nil {
-		message.ErrorEdit(err)
-	}
-	image.Background = color.RGBA{uint8(red), uint8(green), uint8(blue), uint8(alpha)}
 	image.GenerateImg()
-	if chipColor == 0 { // command user chose chip color red
-		image.ColorP1 = color.RGBA{255, 0, 0, uint8(alpha)}
-		image.ColorP2 = color.RGBA{255, 255, 0, uint8(alpha)}
-	} else { // command user chose chip color yellow
-		image.ColorP1 = color.RGBA{255, 255, 0, uint8(alpha)}
-		image.ColorP2 = color.RGBA{255, 0, 0, uint8(alpha)}
-	}
 	game.CurrPlayer = player1.User
 	return message.NewMessage()
 }

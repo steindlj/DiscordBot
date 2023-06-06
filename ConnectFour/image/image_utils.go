@@ -10,12 +10,13 @@ import (
 )
 
 var (
-	space      = 12 // between chips
-	width      = 48 // width of chips 
-	Background color.RGBA
-	ColorP1    color.RGBA
-	ColorP2    color.RGBA
-	img        = image.NewRGBA(image.Rect(0, 0, 7*width+8*space, 6*width+7*space)) // holds the RGBA values set by methods
+	space   = 12 // between chips
+	width   = 48 // width of chips
+	Grid int64
+	ColorP1 int64
+	ColorP2 int64
+	Cell int64
+	img     = image.NewRGBA(image.Rect(0, 0, 7*width+8*space, 6*width+7*space)) // holds the RGBA values set by methods
 )
 
 // Writes current image to given png-file.
@@ -24,11 +25,11 @@ func EncodeImage(file *os.File) {
 }
 
 // Generates the image by coloring the background with the background color
-// and coloring each of the 42 fields based on the value in the grid. 
+// and coloring each of the 42 fields based on the value in the grid.
 func GenerateImg() {
 	for i := 0; i < 7*width+8*space; i++ {
 		for j := 0; j < 6*width+7*space; j++ {
-			img.Set(i, j, Background)
+			img.Set(i, j, IntToColor(Grid))
 		}
 	}
 	for i := 0; i < 6; i++ {
@@ -44,7 +45,7 @@ func GenerateImg() {
 func ColorField(row, col int) {
 	x := (col+1)*space + col*width
 	y := (row+1)*space + row*width
-	color := color.RGBA{Background.R, Background.G, Background.B, uint8(float64(Background.A) * 0.9)}
+	color := Cell
 	if game.Grid[row][col] != 0 {
 		if game.Grid[row][col] == 1 {
 			color = ColorP1
@@ -54,7 +55,15 @@ func ColorField(row, col int) {
 	}
 	for row = 0; row < width; row++ {
 		for col = 0; col < width; col++ {
-			img.SetRGBA(x+row, y+col, color)
+			img.SetRGBA(x+row, y+col, IntToColor(color))
 		}
 	}
+}
+
+func IntToColor(intValue int64) color.RGBA {
+	red := uint8((intValue >> 16) & 0xFF)
+	green := uint8((intValue >> 8) & 0xFF)
+	blue := uint8(intValue & 0xFF)
+	alpha := uint8(255)
+	return color.RGBA{red, green, blue, alpha}
 }
