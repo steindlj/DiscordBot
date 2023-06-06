@@ -143,7 +143,7 @@ func filter(grid [][]color.Color) (irImage [][]color.Color) {
 				hue += 255
 				//Green -> Magenta
 			} else if hue > 75 && hue <= 150 {
-				hue += 150
+				hue += 225
 				//Blue -> Green
 			} else if hue >= 165 && hue <= 255 {
 				hue -= 75
