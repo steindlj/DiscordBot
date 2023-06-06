@@ -17,7 +17,7 @@ var _ common.Component = ConnectFourSelectMenu{}
 
 // Returns the customID of this component so it can be assigned to the correct component.
 func (ConnectFourSelectMenu) CustomID() (string, error) {
-	return "colsm", nil
+	return message.Prefix+"-colsm", nil
 }
 
 // Handles the input when this component is used.

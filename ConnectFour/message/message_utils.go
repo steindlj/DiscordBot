@@ -11,8 +11,9 @@ import (
 )
 
 var Proxy common.InteractionProxy // current proxy 
+var Prefix = "connect_four"
 
-// Sends a message with an updated game status including image, 
+// NewMessage sends a message with an updated game status including image, 
 // round counter and current player. 
 func NewMessage() error {
 	Proxy.Delete("")
@@ -20,7 +21,7 @@ func NewMessage() error {
 	return err
 }
 
-// Sends the winner message announcing the winner and showing the final game state.
+// WinMessage sends the winner message announcing the winner and showing the final game state.
 // Components are excluded since the game is finished. 
 func WinMessage() error {
 	Proxy.Delete("")
@@ -43,7 +44,7 @@ func WinMessage() error {
 	return err
 }
 
-// Creates a new temporary png-file which will be encoded with
+// newFile creates a new temporary png-file which will be encoded with
 // the current state of the game.
 func newFile() *os.File {
 	file, err := os.CreateTemp(os.TempDir(), "*.png")
@@ -58,28 +59,28 @@ func newFile() *os.File {
 	return sendFile
 }
 
-// Will only be called if a non-player user uses a command.
-// Resends the message and points out the error in the content field of the response. 
+// ErrorEditPlayer will only be called if a non-player user uses a command.
+// It resends the message and points out the error in the content field of the response. 
 func ErrorEditPlayer(error error) error {
 	Proxy.Delete("")
 	_, err := Proxy.Followup(Response(basicTitle() + "; Error: " + error.Error()), false)
 	return err
 }
 
-// Changes content of discord message to error message.
-// Command will become unusable. 
+// ErrorEdit changes the content of the discord message to an error message.
+// The command becomes unusable. 
 func ErrorEdit(error error) {
 	Proxy.Edit("", common.Response{
 		Content: error.Error(),
 	})
 }
 
-// Returns the base title with the current players.
+// basicTitle returns the base title with the current players.
 func basicTitle() string {
 	return game.Player1.Mention()+" vs. "+game.Player2.Mention()
 }
 
-// Returns the base response used for each round with all components
+// Response returns the base response used for each round with all components
 // and the image file showing the current state of the game.
 // The content of the response is specified by the content parameter.
 func Response(content string) common.Response {
@@ -115,7 +116,7 @@ func Response(content string) common.Response {
 			discordgo.ActionsRow{
 				Components: []discordgo.MessageComponent{
 					discordgo.Button{
-						CustomID: "btn",
+						CustomID: Prefix+"-btn",
 						Label: "Random Color",
 						Style: discordgo.SuccessButton,
 					},
@@ -125,7 +126,7 @@ func Response(content string) common.Response {
 	}
 }
 
-// Returns a select menu containing all empty columns as an option to choose from.
+// generateSelectMenu returns a select menu containing all empty columns as an option to choose from.
 func generateSelectMenu() discordgo.SelectMenu {
 	var options []discordgo.SelectMenuOption
 	for i := range emptyCols() {
@@ -141,13 +142,13 @@ func generateSelectMenu() discordgo.SelectMenu {
 		}
 	}
 	return discordgo.SelectMenu{
-		CustomID: "colsm",
+		CustomID: Prefix+"-colsm",
 		MenuType: discordgo.StringSelectMenu,
 		Options:  options,
 	}
 }
 
-// Returns slice containing indices of the empty columns in the grid.
+// emptyCols returns a slice containing all indices of empty columns in the grid.
 func emptyCols() []int {
 	var cols []int
 	for i := 0; i < 7; i++ {

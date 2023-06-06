@@ -18,8 +18,12 @@ var _ common.Command = TTSCommand{}
 func (TTSCommand) Data() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
 		Type:        discordgo.ChatApplicationCommand,
-		Name:        "tts",
+		Name:        message.Prefix+"-tts",
 		Description: "Text-to-Speech",
+		NameLocalizations: &map[discordgo.Locale]string{
+			discordgo.EnglishUS: "tts",
+			discordgo.German: "tts",
+		},
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Type:        discordgo.ApplicationCommandOptionString,
@@ -50,7 +54,7 @@ func (TTSCommand) Data() (discordgo.ApplicationCommand, error) {
 						Value: voices.Latin,
 					},
 					{
-						Name:  "African",
+						Name:  "Afrikaans",
 						Value: voices.Afrikaans,
 					},
 				},
@@ -59,23 +63,22 @@ func (TTSCommand) Data() (discordgo.ApplicationCommand, error) {
 				Type:        discordgo.ApplicationCommandOptionInteger,
 				Name:        "effect",
 				Description: "Mixing effect",
-				Required:    false,
 				Choices: []*discordgo.ApplicationCommandOptionChoice{
 					{
 						Name:  "distortion",
-						Value: 1,
+						Value: 0,
 					},
 					{
 						Name:  "vintage",
-						Value: 2,
+						Value: 1,
 					},
 					{
 						Name:  "slowed",
-						Value: 3,
+						Value: 2,
 					},
 					{
 						Name:  "sped_up",
-						Value: 4,
+						Value: 3,
 					},
 				},
 			},
@@ -96,10 +99,14 @@ func (TTSCommand) Execute(proxy common.ExecuteProxy) error {
 		message.ErrorEdit(err)
 	}
 	effect, err := proxy.IntegerOption("effect")
+	var filePath string
 	if err != nil {
 		effect = 0
+		filePath = message.CreateFile(text, lang)
+	} else {
+		filePath = audio.Mix(message.CreateFile(text, lang), effect)
 	}
-	fileToSend, err := os.Open(audio.Mix(message.CreateFile(text, lang), effect))
+	fileToSend, err := os.Open(filePath)
 	if err != nil {
 		message.ErrorEdit(err)
 	}

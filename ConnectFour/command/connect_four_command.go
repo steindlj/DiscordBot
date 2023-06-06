@@ -17,8 +17,12 @@ var _ common.Command = ConnectFourCommand{}
 func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
 		Type:        discordgo.ChatApplicationCommand,
-		Name:        "connectfour",
+		Name:        message.Prefix+"-connect_four",
 		Description: "Connect Four",
+		NameLocalizations: &map[discordgo.Locale]string{
+			discordgo.EnglishUS: "connect_four",
+			discordgo.German: "4_gewinnt",
+		},
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Type:        discordgo.ApplicationCommandOptionUser,

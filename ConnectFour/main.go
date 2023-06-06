@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/steindlj/dc-plugins/ConnectFour/command"
 	"github.com/steindlj/dc-plugins/ConnectFour/component"
+	"github.com/steindlj/dc-plugins/ConnectFour/message"
 )
 
 var logger hclog.Logger
@@ -24,6 +25,6 @@ func main() {
 	plugin.SetApplicationCommands(commands...)
 	plugin.SetMessageComponents(components...)
 
-	logger, closeChan, _ = plugin.Debug("connect_four", "MTA4OTk3MjA5MTE0MDQ0NDIwMA.GP2KIy.leSaPM-gs15w2o44798L41qj68-drv2zDvigSk")
+	logger, closeChan, _ = plugin.Debug(message.Prefix, "MTA4OTk3MjA5MTE0MDQ0NDIwMA.GP2KIy.leSaPM-gs15w2o44798L41qj68-drv2zDvigSk")
 	<-closeChan
 }

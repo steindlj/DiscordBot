@@ -10,9 +10,9 @@ import (
 	"github.com/steindlj/dc-plugins/Text2Vocals/message"
 )
 
-// Mix decodes file given by the filepath into pcm values
-// which then will be modified depending on the wanted effect. 
-// Returns file path of new file with modified sound.
+// Mix decodes file specified by the filepath into pcm values
+// and modifies them based on the desired effect. 
+// It returns the file path of the new file with the modified sound.
 func Mix(filepath string, effect int64) string {
 	mp3File, err := os.Open(filepath)
 	if err != nil {
@@ -24,24 +24,23 @@ func Mix(filepath string, effect int64) string {
 		message.ErrorEdit(err)
 	}
 	defer wavFile.Close()
+	// Decodes the WAV file into PCM buffer
 	buffer, err := gowav.NewDecoder(wavFile).FullPCMBuffer()
 	if err != nil {
 		message.ErrorEdit(err)
 	}
 	switch effect {
-	case 0: // default
-		return wavFile.Name()
-	case 1: // distortion: multiplying the pcm value by 5 --> will often exceed limit --> clipping occurs
+	case 0: // distortion: multiplying the pcm value by 5 --> will often exceed limit --> clipping occurs
 		for i := range buffer.Data {
 			buffer.Data[i] *= 5
 		}
-	case 2: // vintage/old recording: changing the pcm by random values between -200 and +199 to create background noise
+	case 1: // vintage/old recording: changing the pcm by random values between -200 and +199 to create background noise
 		for i := range buffer.Data {
 			buffer.Data[i] += rand.Intn(400) - 200
 		}
-	case 3: // slowed: decreasing sample rate --> less samples per second --> sounds slower
+	case 2: // slowed: decreasing sample rate --> less samples per second --> sounds slower
 		buffer.Format.SampleRate /= 2
-	case 4: // sped up: increasing sampe rate --> more samples per second --> sounds faster
+	case 3: // sped up: increasing sampe rate --> more samples per second --> sounds faster
 		buffer.Format.SampleRate *= 2
 	}
 	newFile, err := os.CreateTemp(os.TempDir(), "*.wav")
@@ -54,7 +53,7 @@ func Mix(filepath string, effect int64) string {
 	return newFile.Name()
 }
 
-// Decodes a specified mp3-file and returns the file path of the converted wav-file.
+// Decodes the specified MP3-file and returns the file path of the converted WAV-file.
 func converToWAV(file *os.File) string {
 	streamer, format, err := mp3.Decode(file)
 	if err != nil {

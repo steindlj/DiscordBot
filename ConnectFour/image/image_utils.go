@@ -19,12 +19,12 @@ var (
 	img     = image.NewRGBA(image.Rect(0, 0, 7*width+8*space, 6*width+7*space)) // holds the RGBA values set by methods
 )
 
-// Writes current image to given png-file.
+// EncodeImage writes the current image to the given PNG-file.
 func EncodeImage(file *os.File) {
 	png.Encode(file, img)
 }
 
-// Generates the image by coloring the background with the background color
+// GenerateImg generates the image by coloring the background with the background color
 // and coloring each of the 42 fields based on the value in the grid.
 func GenerateImg() {
 	for i := 0; i < 7*width+8*space; i++ {
@@ -39,8 +39,8 @@ func GenerateImg() {
 	}
 }
 
-// Colors a specified spot in the grid based on the value in it.
-// val = 0 -> no chip -> background color with 90% alpha value
+// ColorField colors a specified spot in the grid based on the value in it.
+// val = 0 -> no chip -> Cell
 // val = 1 -> player 1 -> ColorP1, val = 2 -> player 2 -> ColorP2
 func ColorField(row, col int) {
 	x := (col+1)*space + col*width
@@ -60,6 +60,7 @@ func ColorField(row, col int) {
 	}
 }
 
+// IntToColor converts an integer value to a color.RGBA
 func IntToColor(intValue int64) color.RGBA {
 	red := uint8((intValue >> 16) & 0xFF)
 	green := uint8((intValue >> 8) & 0xFF)

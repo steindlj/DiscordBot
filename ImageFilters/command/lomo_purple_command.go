@@ -25,6 +25,10 @@ func (LomoPurpleCommand) Data() (discordgo.ApplicationCommand, error) {
 		Type:        discordgo.ChatApplicationCommand,
 		Name:        "lomo_filter",
 		Description: "Lomo Purple Filter",
+		NameLocalizations: &map[discordgo.Locale]string{
+			discordgo.EnglishUS: "lomo_filter",
+			discordgo.German: "lomo_filter",
+		},
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Type:        discordgo.ApplicationCommandOptionAttachment,

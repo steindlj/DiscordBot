@@ -17,7 +17,7 @@ var _ common.Component = ConnectFourButton{}
 
 // Returns the customID of this component so it can be assigned to the correct component.
 func (ConnectFourButton) CustomID() (string, error) {
-	return "btn", nil
+	return message.Prefix+"-btn", nil
 }
 
 // Handles the input when this component is used.
