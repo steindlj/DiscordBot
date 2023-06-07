@@ -14,7 +14,7 @@ var Prefix = "text2vocals"
 
 // CreateFile generates a text-to-speech file from the given text in the specified language (speaker language, not translation).
 // It returns the path of the generated mp3-file.
-func CreateFile(text string, lang string) string {
+func CreateFile(text, lang string) string {
 	dir := os.TempDir()
 	speech := htgotts.Speech{Folder: dir, Language: lang}
 	name := generateHash(text + lang)
@@ -23,15 +23,15 @@ func CreateFile(text string, lang string) string {
 }
 
 // generateHash generates hashstring from given string and returns it.
-func generateHash(name string) string {
-	byte := md5.Sum([]byte(name))
+func generateHash(s string) string {
+	byte := md5.Sum([]byte(s))
 	return hex.EncodeToString(byte[:])
 }
 
 // ErrorEdit changes the content of the discord message from the current proxy to an error message.
 // This function makes the command unusable.
-func ErrorEdit(error error) {
+func ErrorEdit(err error) {
 	Proxy.Edit("", common.Response{
-		Content: error.Error(),
+		Content: err.Error(),
 	})
 }

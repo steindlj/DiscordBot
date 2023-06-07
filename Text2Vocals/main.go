@@ -21,6 +21,6 @@ func main() {
 	plugin.SetApplicationCommands(commands...)
 	plugin.SetMessageComponents(components...)
 
-	logger, closeChan, _ = plugin.Debug(message.Prefix, "MTA4OTk4NTcwODc1Nzg5MzE4MQ.GiZNrd.bxbuRPmUBRXT02H7-oCqHz2SN4q9eULTT_XOVo")
+	logger, closeChan, _ = plugin.Run(message.Prefix)
 	<-closeChan
 }

@@ -20,6 +20,6 @@ func main() {
 	plugin.SetApplicationCommands(commands...)
 	plugin.SetMessageComponents(components...)
 
-	logger, closeChan, _ = plugin.Debug("image_filter", "MTA4OTk4MzgzMDgwMDIxNjIxNA.GaHye3.6fvA2vSA8GoqO0MJpPABqeA-jmB9JshJv00qvE")
+	logger, closeChan, _ = plugin.Run("image_filter")
 	<-closeChan
 }

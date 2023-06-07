@@ -69,9 +69,9 @@ func ErrorEditPlayer(error error) error {
 
 // ErrorEdit changes the content of the discord message to an error message.
 // The command becomes unusable. 
-func ErrorEdit(error error) {
+func ErrorEdit(err error) {
 	Proxy.Edit("", common.Response{
-		Content: error.Error(),
+		Content: err.Error(),
 	})
 }
 
