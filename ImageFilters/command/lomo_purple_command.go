@@ -1,7 +1,7 @@
 package command
 
 import (
-	"fmt"
+	"errors"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	common "github.com/EliasStar/BacoTell/pkg/bacotell_common"
 	"github.com/PerformLine/go-stockutil/colorutil"
@@ -18,6 +19,7 @@ import (
 type LomoPurpleCommand struct{}
 
 var _ common.Command = LomoPurpleCommand{}
+var currProxy common.ExecuteProxy
 
 // Defines structure of command.
 func (LomoPurpleCommand) Data() (discordgo.ApplicationCommand, error) {
@@ -43,27 +45,27 @@ func (LomoPurpleCommand) Data() (discordgo.ApplicationCommand, error) {
 // Execution of command.
 func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
 	proxy.Defer(true)
-
+	currProxy = proxy
 	img, err := proxy.AttachmentOption("attachment")
 	if err != nil {
-		return fmt.Errorf("failed to retrieve attachment: %w", err)
+		return errorEdit(err)
 	}
 
 	url := img.URL
 	tempDir := "temp"
 	path, err := downloadImage(url, tempDir)
 	if err != nil {
-		return fmt.Errorf("failed to download image: %w", err)
+		return errorEdit(err)
 	}
 	grid, err := load(path)
 	if err != nil {
-		return fmt.Errorf("failed to load image: %w", err)
+		return errorEdit(err)
 	}
 	newPath := save(tempDir, img.Filename, filter(grid))
 
 	sendImg, err := os.Open(newPath)
 	if err != nil {
-		return fmt.Errorf("failed to open new image: %w", err)
+		return errorEdit(err)
 	}
 	defer sendImg.Close()
 
@@ -84,17 +86,17 @@ func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
 func load(filePath string) ([][]color.Color, error) {
 	imgFile, err := os.Open(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open file: %w", err)
+		return nil, errorEdit(err)
 	}
 	defer imgFile.Close()
 
 	img, _, err := image.Decode(imgFile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode image: %w", err)
+		return nil, errorEdit(err)
 	}
 
 	if img.ColorModel() != color.YCbCrModel {
-		return nil, fmt.Errorf("only JPEG are supported")
+		return nil, errorEdit(err)
 	}
 
 	bounds := img.Bounds()
@@ -128,7 +130,8 @@ func save(directory string, fileName string, grid [][]color.Color) string {
 	filePath := filepath.Join(directory, "IR_"+fileName)
 	file, err := os.Create(filePath)
 	if err != nil {
-		return fmt.Sprintf("Cannot create file: %w", err)
+		errorEdit(err)
+		return ""
 	}
 	defer file.Close()
 	jpeg.Encode(file, img, &jpeg.Options{Quality: 100})
@@ -176,7 +179,7 @@ func filter(grid [][]color.Color) (irImage [][]color.Color) {
 func downloadImage(url string, directory string) (string, error) {
 	err := os.MkdirAll(directory, os.ModePerm)
 	if err != nil {
-		return "", fmt.Errorf("failed to create directory: %w", err)
+		return "", errorEdit(err)
 	}
 
 	fileName := filepath.Base(url)
@@ -184,23 +187,23 @@ func downloadImage(url string, directory string) (string, error) {
 
 	file, err := os.Create(filePath)
 	if err != nil {
-		return "", fmt.Errorf("failed to create file: %w", err)
+		return "", errorEdit(err)
 	}
 	defer file.Close()
 
 	response, err := http.Get(url)
 	if err != nil {
-		return "", fmt.Errorf("failed to perform HTTP GET request: %w", err)
+		return "", errorEdit(err)
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("download failed with status code: %d", response.StatusCode)
+		return "", errorEdit(errors.New(strconv.Itoa(response.StatusCode)))
 	}
 
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-		return "", fmt.Errorf("failed to write file: %w", err)
+		return "", errorEdit(err)
 	}
 
 	return filePath, nil
@@ -211,7 +214,15 @@ func downloadImage(url string, directory string) (string, error) {
 func deleteDir(directory string) error {
 	err := os.RemoveAll(directory)
 	if err != nil {
-		return fmt.Errorf("failed to delete directory: %w", err)
+		return errorEdit(err)
 	}
 	return nil
+}
+
+// ErrorEdit changes the content of the discord message from the current proxy to an error message.
+// This function makes the command unusable.
+func errorEdit(err error) error {
+	return currProxy.Edit("", common.Response{
+		Content: err.Error(),
+	})
 }
