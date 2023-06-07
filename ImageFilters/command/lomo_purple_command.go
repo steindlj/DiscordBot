@@ -44,7 +44,7 @@ func (LomoPurpleCommand) Data() (discordgo.ApplicationCommand, error) {
 
 // Execution of command.
 func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
-	proxy.Defer(true)
+	proxy.Defer(false)
 	currProxy = proxy
 	img, err := proxy.AttachmentOption("attachment")
 	if err != nil {
@@ -86,17 +86,17 @@ func (LomoPurpleCommand) Execute(proxy common.ExecuteProxy) error {
 func load(filePath string) ([][]color.Color, error) {
 	imgFile, err := os.Open(filePath)
 	if err != nil {
-		return nil, errorEdit(err)
+		return nil, err
 	}
 	defer imgFile.Close()
 
 	img, _, err := image.Decode(imgFile)
 	if err != nil {
-		return nil, errorEdit(err)
+		return nil, err
 	}
 
 	if img.ColorModel() != color.YCbCrModel {
-		return nil, errorEdit(err)
+		return nil, errors.New("not a jpg")
 	}
 
 	bounds := img.Bounds()
@@ -179,7 +179,7 @@ func filter(grid [][]color.Color) (irImage [][]color.Color) {
 func downloadImage(url string, directory string) (string, error) {
 	err := os.MkdirAll(directory, os.ModePerm)
 	if err != nil {
-		return "", errorEdit(err)
+		return "", err
 	}
 
 	fileName := filepath.Base(url)
@@ -187,23 +187,23 @@ func downloadImage(url string, directory string) (string, error) {
 
 	file, err := os.Create(filePath)
 	if err != nil {
-		return "", errorEdit(err)
+		return "", err
 	}
 	defer file.Close()
 
 	response, err := http.Get(url)
 	if err != nil {
-		return "", errorEdit(err)
+		return "", err
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return "", errorEdit(errors.New(strconv.Itoa(response.StatusCode)))
+		return "", errors.New(strconv.Itoa(response.StatusCode))
 	}
 
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-		return "", errorEdit(err)
+		return "", err
 	}
 
 	return filePath, nil
@@ -214,7 +214,7 @@ func downloadImage(url string, directory string) (string, error) {
 func deleteDir(directory string) error {
 	err := os.RemoveAll(directory)
 	if err != nil {
-		return errorEdit(err)
+		return err
 	}
 	return nil
 }

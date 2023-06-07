@@ -12,10 +12,10 @@ import (
 var (
 	space   = 12 // between chips
 	width   = 48 // width of chips
-	Grid int64
+	Grid    int64
 	ColorP1 int64
 	ColorP2 int64
-	Cell int64
+	Cell    int64
 	img     = image.NewRGBA(image.Rect(0, 0, 7*width+8*space, 6*width+7*space)) // holds the RGBA values set by methods
 )
 
@@ -34,15 +34,15 @@ func GenerateImg() {
 	}
 	for i := 0; i < 6; i++ {
 		for j := 0; j < 7; j++ {
-			ColorField(i, j)
+			ColorCell(i, j)
 		}
 	}
 }
 
-// ColorField colors a specified spot in the grid based on the value in it.
+// ColorCell colors a specified spot in the grid based on the value in it.
 // val = 0 -> no chip -> Cell
 // val = 1 -> player 1 -> ColorP1, val = 2 -> player 2 -> ColorP2
-func ColorField(row, col int) {
+func ColorCell(row, col int) {
 	x := (col+1)*space + col*width
 	y := (row+1)*space + row*width
 	color := Cell

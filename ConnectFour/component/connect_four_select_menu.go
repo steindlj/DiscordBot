@@ -17,7 +17,7 @@ var _ common.Component = ConnectFourSelectMenu{}
 
 // Returns the customID of this component so it can be assigned to the correct component.
 func (ConnectFourSelectMenu) CustomID() (string, error) {
-	return message.Prefix+"-colsm", nil
+	return message.Prefix + "-colsm", nil
 }
 
 // Handles the input when this component is used.
@@ -42,7 +42,7 @@ func (ConnectFourSelectMenu) Handle(proxy common.HandleProxy) error {
 	if err != nil {
 		message.ErrorEdit(err)
 	}
-	image.ColorField(game.PlaceChip(col))
+	image.ColorCell(game.PlaceChip(col))
 	if game.CheckWin() {
 		return message.WinMessage()
 	}
