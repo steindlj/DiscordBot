@@ -20,12 +20,13 @@ type LomoPurpleCommand struct{}
 
 var _ common.Command = LomoPurpleCommand{}
 var currProxy common.ExecuteProxy
+var Prefix = "image_filter"
 
 // Defines structure of command.
 func (LomoPurpleCommand) Data() (discordgo.ApplicationCommand, error) {
 	return discordgo.ApplicationCommand{
 		Type:        discordgo.ChatApplicationCommand,
-		Name:        "lomo_filter",
+		Name:        Prefix+"-lomo_filter",
 		Description: "Lomo Purple Filter",
 		NameLocalizations: &map[discordgo.Locale]string{
 			discordgo.EnglishUS: "lomo_filter",
