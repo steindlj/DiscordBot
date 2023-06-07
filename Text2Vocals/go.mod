@@ -3,7 +3,7 @@ module github.com/steindlj/dc-plugins/Text2Vocals
 go 1.20
 
 require (
-	github.com/EliasStar/BacoTell v0.1.1
+	github.com/EliasStar/BacoTell v0.3.0
 	github.com/bwmarrin/discordgo v0.27.1
 	github.com/faiface/beep v1.1.0
 	github.com/go-audio/wav v1.1.0

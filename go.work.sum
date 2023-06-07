@@ -120,8 +120,8 @@ cloud.google.com/go/webrisk v1.8.0/go.mod h1:oJPDuamzHXgUc+b8SiHRcVInZQuybnvEW72
 cloud.google.com/go/websecurityscanner v1.5.0/go.mod h1:Y6xdCPy81yi0SQnDY1xdNTNpfY1oAgXUlcfN3B3eSng=
 cloud.google.com/go/workflows v1.10.0/go.mod h1:fZ8LmRmZQWacon9UCX1r/g/DfAXx5VcPALq2CxzdePw=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
-github.com/EliasStar/BacoTell v0.1.1 h1:TW78vUsXctc/1nOVCqvPFco/amA+dYwPT94paAvbmNc=
-github.com/EliasStar/BacoTell v0.1.1/go.mod h1:iSCCYbbfFN4SP0exLpLB6YF/CExK/CUm/dcntec7Ptk=
+github.com/EliasStar/BacoTell v0.3.0 h1:syl038OAdbUgZSw/ByNC6WeueijXc5cBpcpeCJs4REM=
+github.com/EliasStar/BacoTell v0.3.0/go.mod h1:iSCCYbbfFN4SP0exLpLB6YF/CExK/CUm/dcntec7Ptk=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=

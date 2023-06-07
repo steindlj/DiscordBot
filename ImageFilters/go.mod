@@ -3,7 +3,7 @@ module github.com/steindlj/dc-plugins/ImageFilters
 go 1.20
 
 require (
-	github.com/EliasStar/BacoTell v0.1.1
+	github.com/EliasStar/BacoTell v0.3.0
 	github.com/PerformLine/go-stockutil v1.9.3
 	github.com/bwmarrin/discordgo v0.27.1
 	github.com/hashicorp/go-hclog v1.5.0
