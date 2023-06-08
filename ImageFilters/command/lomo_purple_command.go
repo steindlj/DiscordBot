@@ -118,6 +118,10 @@ func (LomoPurpleCommand) Autocomplete(common.AutocompleteProxy) error {
 	panic("unimplemented")
 }
 
+
+// save is a function that takes a directory, file name, and a grid of colors as input.
+// It creates an image from the grid and saves it as a JPEG file in the specified directory.
+// The function returns the file path of the saved image.
 func save(directory string, fileName string, grid [][]color.Color) string {
 	xlen, ylen := len(grid), len(grid[0])
 	rect := image.Rect(0, 0, xlen, ylen)
