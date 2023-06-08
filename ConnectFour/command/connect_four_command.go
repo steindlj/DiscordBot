@@ -46,15 +46,15 @@ func (ConnectFourCommand) Data() (discordgo.ApplicationCommand, error) {
 			},
 			{
 				Type:        discordgo.ApplicationCommandOptionInteger,
-				Name:        "grid",
-				Description: "Grid value",
+				Name:        "grid_color",
+				Description: "Grid color",
 				MinValue:    util.Ptr(0.0),
 				MaxValue:    0xFFFFFF,
 			},
 			{
 				Type:        discordgo.ApplicationCommandOptionInteger,
-				Name:        "cell",
-				Description: "Cell value",
+				Name:        "cell_color",
+				Description: "Cell color",
 				MinValue:    util.Ptr(0.0),
 				MaxValue:    0xFFFFFF,
 			},
@@ -86,11 +86,11 @@ func (ConnectFourCommand) Execute(proxy common.ExecuteProxy) error {
 	if err != nil {
 		image.ColorP2 = 0xFFFF00
 	} 
-	image.Grid, err = proxy.IntegerOption("grid")
+	image.Grid, err = proxy.IntegerOption("grid_color")
 	if err != nil {
 		image.Grid = 0x0000FF
 	}
-	image.Cell, err = proxy.IntegerOption("cell")
+	image.Cell, err = proxy.IntegerOption("cell_color")
 	if err != nil {
 		image.Cell = 0xFFFFFF
 	}
