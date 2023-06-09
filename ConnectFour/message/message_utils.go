@@ -130,16 +130,11 @@ func Response(content string) common.Response {
 func generateSelectMenu() discordgo.SelectMenu {
 	var options []discordgo.SelectMenuOption
 	for _,i := range emptyCols() {
-		for j := 5; j >= 0; j-- {
-			if game.Grid[j][i] == 0 {
-				options = append(options,
-					discordgo.SelectMenuOption{
-						Label: "Column: " + strconv.Itoa(i+1),
-						Value: strconv.Itoa(i),
-					})
-				break
-			}
-		}
+		options = append(options,
+			discordgo.SelectMenuOption{
+				Label: "Column: " + strconv.Itoa(i+1),
+				Value: strconv.Itoa(i),
+		})
 	}
 	return discordgo.SelectMenu{
 		CustomID: Prefix+"-colsm",
