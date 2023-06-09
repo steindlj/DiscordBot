@@ -129,7 +129,7 @@ func Response(content string) common.Response {
 // generateSelectMenu returns a select menu containing all empty columns as an option to choose from.
 func generateSelectMenu() discordgo.SelectMenu {
 	var options []discordgo.SelectMenuOption
-	for i := range emptyCols() {
+	for _,i := range emptyCols() {
 		for j := 5; j >= 0; j-- {
 			if game.Grid[j][i] == 0 {
 				options = append(options,
